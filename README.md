@@ -35,21 +35,21 @@ npm install treeize
 - `treeize.getOptions()` - returns global options for the lib.
 - `treeize.setOptions(options)` - sets global options for the lib.  For example, to use a path delimiter of '>' instead of ':', call `treeize.setOptions({ delimiter: '>' })`
 
-#### Notes
+### Notes
 
 - The column/attribute order is not important.  All attributes are sorted by depth before mapping.  This ensures parent nodes exist before children nodes are created within.
 - Each attribute name of the flat data must consist of the full path to its node & attribute, seperated by the delimiter.  `id` suggests an `id` attribute on a root element, whereas `name+first` implies a `first` attribute on a `name` object within a root element.
 - To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.
 - Use a `:` delimiter (default) to seperate path nodes.  To change this, use the `treeize.set([options])` function.
 
-#### Assumptions
+### Assumptions
 
 This library has several assumptions that make it possible.
 
 1. That each row represents a singular child item, that may contain many repeated ancestor columns.
 2. That each element in a collection node (including the root) will have a unique identifying signature (necessary to prevent duplication).  This can be any one attribute, or the combination of any/all attributes.
 
-### Examples
+## Examples
 
 In this short series of examples, we'll take a standard "join dump", originally keyed
 (via attribute names) to organize by movie - and demonstrate how other organizations can
