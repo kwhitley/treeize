@@ -8,7 +8,20 @@ Converts row data (in JSON/associative array format) to object/tree structure ba
 Most of us still have our hands in traditional relational databases (e.g. MySQL).
 While the normalized tables do a fine job of representing the parent/child
 relationships, the joined SQL results do not.  In fact, they look more like an Excel
-spreadsheet than anything
+spreadsheet than anything (which we LOVE dealing with, right?).  This presents us with a
+problem when trying to supply a nice deep object graph for applications.
+
+Using a traditional ORM is slow (either many fragmented SQL
+calls, slow object hydration of models, or both).  Beyond that, for a lightweight API,
+you don't want to have to first pick an ORM and then model out all your relationships. For complex queries, especially where results are
+filtered by multiple columns across multiple tables, it becomes even more troublesome,
+or borderline impossible to use these model helpers.
+
+The problem is, you can write the
+complex deeply joined SQL call that has all the results you wanted - but you can't get it back into
+an object graph so it looks/behaves like something other than data vomit.
+
+Now you can.
 
 ## Installation
 
@@ -45,42 +58,37 @@ names in the output.
 
 #### Example 1
 
-```
+```js
 var treeize = require('treeize');
 
 var movieDump = [
   {
     "title":             "The Prestige",
     "director":          "Christopher Nolan",
-    "genre":             "drama",
     "actors:name":       "Christian Bale",
     "actors:as":         "Alfred Borden"
   },
   {
     "title":             "The Prestige",
     "director":          "Christopher Nolan",
-    "genre":             "drama",
     "actors:name":       "Hugh Jackman",
     "actors:as":         "Robert Angier"
   },
   {
     "title":             "The Dark Knight Rises",
     "director":          "Christopher Nolan",
-    "genre":             "action",
     "actors:name":       "Christian Bale",
     "actors:as":         "Bruce Wayne"
   },
   {
     "title":             "The Departed",
     "director":          "Martin Scorsese",
-    "genre":             "thriller",
     "actors:name":       "Leonardo DiCaprio",
     "actors:as":         "Billy"
   },
   {
     "title":             "The Departed",
     "director":          "Martin Scorsese",
-    "genre":             "thriller",
     "actors:name":       "Matt Damon",
     "actors:as":         "Colin Sullivan"
   }
@@ -94,7 +102,6 @@ var movies = treeize.grow(movieDump);
 
   [
     {
-      "genre": "drama",
       "director": "Christopher Nolan",
       "title": "The Prestige",
       "actors": [
@@ -109,7 +116,6 @@ var movies = treeize.grow(movieDump);
       ]
     },
     {
-      "genre": "action",
       "director": "Christopher Nolan",
       "title": "The Dark Knight Rises",
       "actors": [
@@ -120,7 +126,6 @@ var movies = treeize.grow(movieDump);
       ]
     },
     {
-      "genre": "thriller",
       "director": "Martin Scorsese",
       "title": "The Departed",
       "actors": [
@@ -136,5 +141,104 @@ var movies = treeize.grow(movieDump);
     }
   ]
 
+*/
+```
+
+#### Example 2
+
+Taking the same feed, but modifying the target paths through the attribute/column
+names we can completely transform the data (as you would for another API endpoint,
+for example).  This time we'll organize the data by directors, as you would for
+and endpoint like `/api/directors`.
+
+Notice the feed is left unchanged - only the attribute names have been modified to
+define their new target path.  In this case, by changing the base node to the directors
+name (instead of the movie name), we group everything by director at a high level.
+
+```js
+var moviesDump = [
+    {
+      "movies:name":       "The Prestige",
+      "name":              "Christopher Nolan",
+      "workedWith:name":   "Christian Bale",
+      "workedWith:as":     "Alfred Borden"
+    },
+    {
+      "movies:name":       "The Prestige",
+      "name":              "Christopher Nolan",
+      "workedWith:name":   "Hugh Jackman",
+      "workedWith:as":     "Robert Angier"
+    },
+    {
+      "movies:name":       "The Dark Knight Rises",
+      "name":              "Christopher Nolan",
+      "workedWith:name":   "Christian Bale",
+      "workedWith:as":     "Bruce Wayne"
+    },
+    {
+      "movies:name":       "The Departed",
+      "name":              "Martin Scorsese",
+      "workedWith:name":   "Leonardo DiCaprio",
+      "workedWith:as":     "Billy"
+    },
+    {
+      "movies:name":       "The Departed",
+      "name":              "Martin Scorsese",
+      "workedWith:name":   "Matt Damon",
+      "workedWith:as":     "Colin Sullivan"
+    }
+  ];
+
+var directors = treeize.grow(movieDump);
+
+/*
+
+  'directors' now contains the following:
+
+  [
+    {
+      "name": "Christopher Nolan",
+      "workedWith": [
+        {
+          "as": "Alfred Borden",
+          "name": "Christian Bale"
+        },
+        {
+          "as": "Robert Angier",
+          "name": "Hugh Jackman"
+        },
+        {
+          "as": "Bruce Wayne",
+          "name": "Christian Bale"
+        }
+      ],
+      "movies": [
+        {
+          "name": "The Prestige"
+        },
+        {
+          "name": "The Dark Knight Rises"
+        }
+      ]
+    },
+    {
+      "name": "Martin Scorsese",
+      "workedWith": [
+        {
+          "as": "Billy",
+          "name": "Leonardo DiCaprio"
+        },
+        {
+          "as": "Colin Sullivan",
+          "name": "Matt Damon"
+        }
+      ],
+      "movies": [
+        {
+          "name": "The Departed"
+        }
+      ]
+    }
+  ]
 */
 ```
