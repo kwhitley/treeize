@@ -8,7 +8,7 @@ Converts row data (in JSON/associative array format) to object/tree structure ba
 Most of us still have our hands in traditional relational databases (e.g. MySQL).
 While the normalized tables do a fine job of representing the parent/child
 relationships, the joined SQL results do not.  In fact, they look more like an Excel
-spreadsheet than anything (which we LOVE dealing with, right?).  This presents us with a
+spreadsheet than anything.  This presents us with a
 problem when trying to supply a nice deep object graph for applications.
 
 Using a traditional ORM is slow (either many fragmented SQL
@@ -35,14 +35,14 @@ npm install treeize
 - `treeize.getOptions()` - returns global options for the lib.
 - `treeize.setOptions(options)` - sets global options for the lib.  For example, to use a path delimiter of '>' instead of ':', call `treeize.setOptions({ delimiter: '>' })`
 
-### Notes
+#### Notes
 
 - The column/attribute order is not important.  All attributes are sorted by depth before mapping.  This ensures parent nodes exist before children nodes are created within.
 - Each attribute name of the flat data must consist of the full path to its node & attribute, seperated by the delimiter.  `id` suggests an `id` attribute on a root element, whereas `name+first` implies a `first` attribute on a `name` object within a root element.
 - To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.
 - Use a `:` delimiter (default) to seperate path nodes.  To change this, use the `treeize.set([options])` function.
 
-### Assumptions
+#### Assumptions
 
 This library has several assumptions that make it possible.
 
@@ -57,6 +57,9 @@ be easily derived from the same original feed... by simply modifying the column/
 names in the output.
 
 #### Example 1
+
+In this example, we'll take our dump (as if from a CSV or SQL result) - and name the keys to
+group by movies (as if for an `/api/movies`).
 
 ```js
 var treeize = require('treeize');
@@ -156,33 +159,35 @@ define their new target path.  In this case, by changing the base node to the di
 name (instead of the movie name), we group everything by director at a high level.
 
 ```js
+var treeize = require('treeize');
+
 var moviesDump = [
     {
-      "movies:name":       "The Prestige",
+      "movies:title":      "The Prestige",
       "name":              "Christopher Nolan",
       "workedWith:name":   "Christian Bale",
       "workedWith:as":     "Alfred Borden"
     },
     {
-      "movies:name":       "The Prestige",
+      "movies:title":      "The Prestige",
       "name":              "Christopher Nolan",
       "workedWith:name":   "Hugh Jackman",
       "workedWith:as":     "Robert Angier"
     },
     {
-      "movies:name":       "The Dark Knight Rises",
+      "movies:title":      "The Dark Knight Rises",
       "name":              "Christopher Nolan",
       "workedWith:name":   "Christian Bale",
       "workedWith:as":     "Bruce Wayne"
     },
     {
-      "movies:name":       "The Departed",
+      "movies:title":      "The Departed",
       "name":              "Martin Scorsese",
       "workedWith:name":   "Leonardo DiCaprio",
       "workedWith:as":     "Billy"
     },
     {
-      "movies:name":       "The Departed",
+      "movies:title":      "The Departed",
       "name":              "Martin Scorsese",
       "workedWith:name":   "Matt Damon",
       "workedWith:as":     "Colin Sullivan"
@@ -214,10 +219,10 @@ var directors = treeize.grow(movieDump);
       ],
       "movies": [
         {
-          "name": "The Prestige"
+          "title": "The Prestige"
         },
         {
-          "name": "The Dark Knight Rises"
+          "title": "The Dark Knight Rises"
         }
       ]
     },
@@ -235,7 +240,7 @@ var directors = treeize.grow(movieDump);
       ],
       "movies": [
         {
-          "name": "The Departed"
+          "title": "The Departed"
         }
       ]
     }
