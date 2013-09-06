@@ -3,6 +3,13 @@ treeize
 
 Converts row data (in JSON/associative array format) to object/tree structure based on column naming conventions.
 
+##Why?
+
+Most of us still have our hands in traditional relational databases (e.g. MySQL).
+While the normalized tables do a fine job of representing the parent/child
+relationships, the joined SQL results do not.  In fact, they look more like an Excel
+spreadsheet than anything
+
 ## Installation
 
 ```
@@ -29,68 +36,105 @@ This library has several assumptions that make it possible.
 1. That each row represents a singular child item, that may contain many repeated ancestor columns.
 2. That each element in a collection node (including the root) will have a unique identifying signature (necessary to prevent duplication).  This can be any one attribute, or the combination of any/all attributes.
 
-### Example
+### Examples
+
+In this short series of examples, we'll take a standard "join dump", originally keyed
+(via attribute names) to organize by movie - and demonstrate how other organizations can
+be easily derived from the same original feed... by simply modifying the column/attribute
+names in the output.
+
+#### Example 1
 
 ```
 var treeize = require('treeize');
 
-var flatData = [
+var movieDump = [
   {
-    "name":             "Mittens",
-    "age":              12,
-    "toys:name":        "mouse",
-    "toys:owner:name":  "Mittens"
+    "title":             "The Prestige",
+    "director":          "Christopher Nolan",
+    "genre":             "drama",
+    "actors:name":       "Christian Bale",
+    "actors:as":         "Alfred Borden"
   },
   {
-    "name":             "Mittens",
-    "age":              12,
-    "toys:name":        "yarn",
-    "toys:owner:name":  "Ms. Threadz"
+    "title":             "The Prestige",
+    "director":          "Christopher Nolan",
+    "genre":             "drama",
+    "actors:name":       "Hugh Jackman",
+    "actors:as":         "Robert Angier"
   },
   {
-    "name":             "Tiger",
-    "age":              7,
-    "toys:name":        "a stick",
-    "toys:owner:name":  "Mother Nature"
+    "title":             "The Dark Knight Rises",
+    "director":          "Christopher Nolan",
+    "genre":             "action",
+    "actors:name":       "Christian Bale",
+    "actors:as":         "Bruce Wayne"
+  },
+  {
+    "title":             "The Departed",
+    "director":          "Martin Scorsese",
+    "genre":             "thriller",
+    "actors:name":       "Leonardo DiCaprio",
+    "actors:as":         "Billy"
+  },
+  {
+    "title":             "The Departed",
+    "director":          "Martin Scorsese",
+    "genre":             "thriller",
+    "actors:name":       "Matt Damon",
+    "actors:as":         "Colin Sullivan"
   }
 ];
 
-var converted = treeize.grow(flatData);
-```
+var movies = treeize.grow(movieDump);
 
-### Output
+/*
 
-```
-[
-  {
-    "name": "Mittens",
-    "age": 12,
-    "toys": [
-      {
-        "name": "mouse",
-        "owner": {
-          "name": "Mittens"
+  'movies' now contains the following:
+
+  [
+    {
+      "genre": "drama",
+      "director": "Christopher Nolan",
+      "title": "The Prestige",
+      "actors": [
+        {
+          "as": "Alfred Borden",
+          "name": "Christian Bale"
+        },
+        {
+          "as": "Robert Angier",
+          "name": "Hugh Jackman"
         }
-      },
-      {
-        "name": "yarn",
-        "owner": {
-          "name": "Ms. Threadz"
+      ]
+    },
+    {
+      "genre": "action",
+      "director": "Christopher Nolan",
+      "title": "The Dark Knight Rises",
+      "actors": [
+        {
+          "as": "Bruce Wayne",
+          "name": "Christian Bale"
         }
-      }
-    ]
-  },
-  {
-    "name": "Tiger",
-    "age": 7,
-    "toys": [
-      {
-        "name": "a stick",
-        "owner": {
-          "name": "Mother Nature"
+      ]
+    },
+    {
+      "genre": "thriller",
+      "director": "Martin Scorsese",
+      "title": "The Departed",
+      "actors": [
+        {
+          "as": "Billy",
+          "name": "Leonardo DiCaprio"
+        },
+        {
+          "as": "Colin Sullivan",
+          "name": "Matt Damon"
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+
+*/
 ```
