@@ -67,6 +67,21 @@ will not.
   "author:age":  21,                          // gives the author object an age attribute
   "author:otherBooks:name": "Ender's Shadow", // adds a collection named "otherBooks" to the author, with a first object of "name": "Ender's Shadow"
 }
+
+// creates the following...
+
+[
+  {
+    title: "Ender's Game",
+    author: {
+      name: "Orson Scott Card",
+      age: 21,
+      otherBooks: [
+        { name: "Ender's Shadow" }
+      ]
+    }
+  }
+]
 ```
 
 ### Notes
