@@ -54,14 +54,18 @@ the attribute name without and preceding paths.  If you were creating a final ou
 book collection for instance, the title of the book would likely be pathless as you would want the
 value on the high-level collection `book` object.
 
-#### Path example
+It's important to note that each row will create or find its path within the newly
+transformed output being created.  Your flat feed will have mass-duplication, the results
+will not.
+
+##### Pathing example
 
 ```js
 {
-  "title": "Ender's Game",                    // creates the first object with a title attribute
-  "author:name": "Orson Scott Card",          // adds an author object (with name) to the book
-  "author:age":  "21",                        // gives the author (above) an age attribute
-  "author:otherBooks:name": "Ender's Shadow", // adds a collection named "otherBooks" to the author, with a first entry of "name": "Ender's Shadow"
+  "title": "Ender's Game",                    // creates the first object with a title attribute of "Ender's Game"
+  "author:name": "Orson Scott Card",          // adds an author object (with name) to the book "Ender's Game" (created above)
+  "author:age":  21,                          // gives the author object an age attribute
+  "author:otherBooks:name": "Ender's Shadow", // adds a collection named "otherBooks" to the author, with a first object of "name": "Ender's Shadow"
 }
 ```
 
