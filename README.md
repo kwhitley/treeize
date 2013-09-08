@@ -50,7 +50,7 @@ Each "path" (up to n-levels deep) is optional and represents a single object nod
 or a collection if the word is plural.  For example, a "favoriteMovie:name" path will
 add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection
 of movies (complete with a first entry) instead.  For root nodes, include only
-the attribute name without and preceding paths.  If you were creating a final output of a
+the attribute name without any preceding paths.  If you were creating a final output of a
 book collection for instance, the title of the book would likely be pathless as you would want the
 value on the high-level collection `book` object.
 
