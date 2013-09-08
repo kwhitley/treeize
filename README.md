@@ -35,10 +35,40 @@ npm install treeize
 - `treeize.getOptions()` - returns global options for the lib.
 - `treeize.setOptions(options)` - sets global options for the lib.  For example, to use a path delimiter of '>' instead of ':', call `treeize.setOptions({ delimiter: '>' })`
 
+### Usage
+
+To use `treeize`, simply pass flat "row data" into `treeize.grow()`.  Each
+column/attribute of each row will dictate its own destination path using the following format:
+
+```js
+{
+  "[path1]:[path2]:[pathX]:[attributeName]": [value]
+}
+```
+
+Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular,
+or a collection if the word is plural.  For example, a "favoriteMovie:name" path will
+add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection
+of movies (complete with a first entry) instead.  For root nodes, include only
+the attribute name without and preceding paths.  If you were creating a final output of a
+book collection for instance, the title of the book would likely be pathless as you would want the
+value on the high-level collection `book` object.
+
+#### Path example
+
+```js
+{
+  "title": "Ender's Game",                    // creates the first object with a title attribute
+  "author:name": "Orson Scott Card",          // adds an author object (with name) to the book
+  "author:age":  "21",                        // gives the author (above) an age attribute
+  "author:otherBooks:name": "Ender's Shadow", // adds a collection named "otherBooks" to the author, with a first entry of "name": "Ender's Shadow"
+}
+```
+
 ### Notes
 
 - The column/attribute order is not important.  All attributes are sorted by depth before mapping.  This ensures parent nodes exist before children nodes are created within.
-- Each attribute name of the flat data must consist of the full path to its node & attribute, seperated by the delimiter.  `id` suggests an `id` attribute on a root element, whereas `name+first` implies a `first` attribute on a `name` object within a root element.
+- Each attribute name of the flat data must consist of the full path to its node & attribute, seperated by the delimiter.  `id` suggests an `id` attribute on a root element, whereas `name:first` implies a `first` attribute on a `name` object within a root element.
 - To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.
 - Use a `:` delimiter (default) to seperate path nodes.  To change this, use the `treeize.set([options])` function.
 
