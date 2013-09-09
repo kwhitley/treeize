@@ -62,10 +62,10 @@ will not.
 
 ```js
 {
-  "title": "Ender's Game",                    // creates the first object with a title attribute of "Ender's Game"
-  "author:name": "Orson Scott Card",          // adds an author object (with name) to the book "Ender's Game" (created above)
-  "author:age":  21,                          // gives the author object an age attribute
-  "author:otherBooks:name": "Ender's Shadow", // adds a collection named "otherBooks" to the author, with a first object of "name": "Ender's Shadow"
+  "title": "Ender's Game",                      // creates the first object with a title attribute of "Ender's Game"
+  "author:name": "Orson Scott Card",            // adds an author object (with name) to the book "Ender's Game" (created above)
+  "author:age":  21,                            // gives the author object an age attribute
+  "author:otherBooks:title": "Ender's Shadow",  // adds a collection named "otherBooks" to the author, with a first object of "title": "Ender's Shadow"
 }
 
 // creates the following...
@@ -77,7 +77,7 @@ will not.
       name: "Orson Scott Card",
       age: 21,
       otherBooks: [
-        { name: "Ender's Shadow" }
+        { title: "Ender's Shadow" }
       ]
     }
   }
