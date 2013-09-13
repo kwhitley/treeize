@@ -1,7 +1,7 @@
 {
   "name": "treeize",
-  "version": "0.0.11",
-  "description": "Converts tabular row data (as from SQL joins, flat JSON, etc) to deep tree graphs based on simple column naming conventions.",
+  "version": "0.0.12",
+  "description": "Converts tabular row data (as from SQL joins, flat JSON, etc) to deep object graphs based on simple column naming conventions - without the use of an ORM or models.",
   "main": "./lib/treeize.js",
   "repository": {
     "type": "git",
@@ -11,11 +11,15 @@
     "JSON",
     "SQL",
     "tree",
+    "object",
     "graph",
+    "hydration",
+    "model",
     "deep",
     "convert",
     "expand",
-    "flat"
+    "flat",
+    "ORM"
   ],
   "author": "K. R. Whitley <contact@krwhitley.com> (http://krwhitley.com/)",
   "licenses": [

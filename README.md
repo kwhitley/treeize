@@ -200,99 +200,102 @@ var movies = treeize.grow(movieDump);
 
 Taking the same feed, but modifying the target paths through the attribute/column
 names we can completely transform the data (as you would for another API endpoint,
-for example).  This time we'll organize the data by directors, as you would for
-and endpoint like `/api/directors`.
+for example).  This time we'll organize the data by actors, as you would for
+and endpoint like `/api/actors`.
 
 Notice the feed is left unchanged - only the attribute names have been modified to
-define their new target path.  In this case, by changing the base node to the directors
-name (instead of the movie name), we group everything by director at a high level.
+define their new target path.  In this case, by changing the base node to the actor
+name (instead of the movie name), we group everything by actor at a high level.
 
 ```js
 var treeize = require('treeize');
 
 var moviesDump = [
-    {
-      "movies:title":      "The Prestige",
-      "name":              "Christopher Nolan",
-      "workedWith:name":   "Christian Bale",
-      "workedWith:as":     "Alfred Borden"
-    },
-    {
-      "movies:title":      "The Prestige",
-      "name":              "Christopher Nolan",
-      "workedWith:name":   "Hugh Jackman",
-      "workedWith:as":     "Robert Angier"
-    },
-    {
-      "movies:title":      "The Dark Knight Rises",
-      "name":              "Christopher Nolan",
-      "workedWith:name":   "Christian Bale",
-      "workedWith:as":     "Bruce Wayne"
-    },
-    {
-      "movies:title":      "The Departed",
-      "name":              "Martin Scorsese",
-      "workedWith:name":   "Leonardo DiCaprio",
-      "workedWith:as":     "Billy"
-    },
-    {
-      "movies:title":      "The Departed",
-      "name":              "Martin Scorsese",
-      "workedWith:name":   "Matt Damon",
-      "workedWith:as":     "Colin Sullivan"
-    }
-  ];
+  {
+    "movies:title":     "The Prestige",
+    "movies:director":  "Christopher Nolan",
+    "name":             "Christian Bale",
+    "movies:as":        "Alfred Borden"
+  },
+  {
+    "movies:title":     "The Prestige",
+    "movies:director":  "Christopher Nolan",
+    "name":             "Hugh Jackman",
+    "movies:as":        "Robert Angier"
+  },
+  {
+    "movies:title":     "The Dark Knight Rises",
+    "movies:director":  "Christopher Nolan",
+    "name":             "Christian Bale",
+    "movies:as":        "Bruce Wayne"
+  },
+  {
+    "movies:title":     "The Departed",
+    "movies:director":  "Martin Scorsese",
+    "name":             "Leonardo DiCaprio",
+    "movies:as":        "Billy"
+  },
+  {
+    "movies:title":     "The Departed",
+    "movies:director":  "Martin Scorsese",
+    "name":             "Matt Damon",
+    "movies:as":        "Colin Sullivan"
+  }
+];
 
-var directors = treeize.grow(movieDump);
+var actors = treeize.grow(movieDump);
 
 /*
 
-  'directors' now contains the following:
+  'actors' now contains the following:
 
   [
     {
-      "name": "Christopher Nolan",
-      "workedWith": [
-        {
-          "as": "Alfred Borden",
-          "name": "Christian Bale"
-        },
-        {
-          "as": "Robert Angier",
-          "name": "Hugh Jackman"
-        },
-        {
-          "as": "Bruce Wayne",
-          "name": "Christian Bale"
-        }
-      ],
+      "name": "Christian Bale",
       "movies": [
         {
+          "as": "Alfred Borden",
+          "director": "Christopher Nolan",
           "title": "The Prestige"
         },
         {
+          "as": "Bruce Wayne",
+          "director": "Christopher Nolan",
           "title": "The Dark Knight Rises"
         }
       ]
     },
     {
-      "name": "Martin Scorsese",
-      "workedWith": [
-        {
-          "as": "Billy",
-          "name": "Leonardo DiCaprio"
-        },
-        {
-          "as": "Colin Sullivan",
-          "name": "Matt Damon"
-        }
-      ],
+      "name": "Hugh Jackman",
       "movies": [
         {
+          "as": "Robert Angier",
+          "director": "Christopher Nolan",
+          "title": "The Prestige"
+        }
+      ]
+    },
+    {
+      "name": "Leonardo DiCaprio",
+      "movies": [
+        {
+          "as": "Billy",
+          "director": "Martin Scorsese",
+          "title": "The Departed"
+        }
+      ]
+    },
+    {
+      "name": "Matt Damon",
+      "movies": [
+        {
+          "as": "Colin Sullivan",
+          "director": "Martin Scorsese",
           "title": "The Departed"
         }
       ]
     }
   ]
+
 */
 ```
