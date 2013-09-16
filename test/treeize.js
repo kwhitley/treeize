@@ -54,31 +54,134 @@ var treeData1 = [
   }
 ];
 
+var flatDataNonPlural = [
+  {
+    "name":             "Mittens",
+    "age":              12,
+    "toy+:name":        "mouse",
+    "toy+:owners:name":  "Mittens"
+  },
+  {
+    "name":             "Mittens",
+    "age":              12,
+    "toy+:name":        "yarn",
+    "toy+:owners:name":  "Ms. Threadz"
+  },
+  {
+    "name":             "Tiger",
+    "age":              7,
+    "toy+:name":        "a stick",
+    "toy+:owners:name":  "Mother Nature"
+  }
+];
+
+var treeDataManual = [
+  {
+    "name": "Mittens",
+    "age": 12,
+    "toy": [
+      {
+        "name": "mouse",
+        "owners": {
+          "name": "Mittens"
+        }
+      },
+      {
+        "name": "yarn",
+        "owners": {
+          "name": "Ms. Threadz"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Tiger",
+    "age": 7,
+    "toy": [
+      {
+        "name": "a stick",
+        "owners": {
+          "name": "Mother Nature"
+        }
+      }
+    ]
+  }
+];
+
+var treeDataMixed = [
+  {
+    "name": "Mittens",
+    "age": 12,
+    "toy": [
+      {
+        "name": "mouse",
+        "owners": [{
+          "name": "Mittens"
+        }]
+      },
+      {
+        "name": "yarn",
+        "owners": [{
+          "name": "Ms. Threadz"
+        }]
+      }
+    ]
+  },
+  {
+    "name": "Tiger",
+    "age": 7,
+    "toy": [
+      {
+        "name": "a stick",
+        "owners": [{
+          "name": "Mother Nature"
+        }]
+      }
+    ]
+  }
+];
+
 module.exports = {
-  '.defaultOptions() returns expected defaults': function (test) {
+  'default .options() returns expected defaults': function (test) {
     test.expect(1);
-    test.deepEqual(treeize.getOptions(), { delimiter: ':' });
+    test.deepEqual(treeize.options(), {
+      delimiter: ':',
+      collections: {
+        auto:  true
+      }
+    });
     test.done();
   },
-  '.setOptions() correctly sets options': function (test) {
+  '.options() correctly sets options': function (test) {
     treeize.setOptions({ delimiter: '+' });
     test.expect(1);
-    test.equal(treeize.getOptions().delimiter, '+');
+    test.equal(treeize.options().delimiter, '+');
     test.done();
   },
   'globalOptions should remain set': function (test) {
     test.expect(1);
-    test.equal(treeize.getOptions().delimiter, '+');
+    test.equal(treeize.options().delimiter, '+');
     test.done();
   },
-  '.setOptions() returns self': function (test) {
+  '.options() returns self': function (test) {
     test.expect(1);
-    test.ok(treeize.setOptions({ delimiter: ':' }).grow);
+    test.ok(treeize.options({ delimiter: ':' }).grow);
     test.done();
   },
   '.grow expands correctly': function (test) {
     test.expect(1);
     test.deepEqual(treeize.grow(flatData1), treeData1);
+    test.done();
+  },
+  '.grow expands auto+manual declarations correctly': function (test) {
+    test.expect(1);
+    test.deepEqual(treeize.grow(flatDataNonPlural), treeDataMixed);
+    test.done();
+  },
+  '.grow expands manual collection declarations correctly': function (test) {
+    test.expect(1);
+    treeize.options({ collections: { auto: false }});
+    test.deepEqual(treeize.grow(flatDataNonPlural), treeDataManual);
     test.done();
   }
 };

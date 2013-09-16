@@ -31,9 +31,23 @@ npm install treeize
 
 ## API
 
-- `treeize.grow(flatData, options)` - takes your results/rows of flat associative data and returns a full object graph.
-- `treeize.getOptions()` - returns global options for the lib.
-- `treeize.setOptions(options)` - sets global options for the lib.  For example, to use a path delimiter of '>' instead of ':', call `treeize.setOptions({ delimiter: '>' })`
+- `treeize.grow(flatData, [options])` - takes your results/rows of flat associative data and returns a full object graph.
+
+#### Configuration (first value is default)
+
+```js
+
+treeize.options([options]); // universal getter/setter for options.  If options are passed, extends default options with user-entered ones.
+
+// where default, overrideable options are as follows:
+
+{
+  delimiter:        ':',          // default path delimiter is a colon, as in "foo:bar:baz"
+  collections: {
+    auto:           true          // set to false for full control of pathing via + and - operators
+  }
+}
+```
 
 ### Usage
 
@@ -57,6 +71,58 @@ value on the high-level collection `book` object.
 It's important to note that each row will create or find its path within the newly
 transformed output being created.  Your flat feed will have mass-duplication, the results
 will not.
+
+##### How to manually override the default pluralization scheme for collection-detection
+
+In the rare (but possible) case that plural/singular node names are not enough to properly
+detect collections, you may add specific overrides to the node name, using the `+` and `-`
+indicators.
+
+```js
+{
+  "name":                 "Bird",
+  "attributes:legs":      2,
+  "attributes:hasWings":  true
+}
+
+// would naturally return
+
+[
+  {
+    name: "Bird",
+    attributes: [
+      {
+        legs: 2,
+        hasWings: true
+      }
+    ]
+  }
+]
+
+// to tell treeize that the node (detected as a plural collection) is NOT a collection, add a - to the path
+
+{
+  "name":                 "Bird",
+  "attributes-:legs":      2,
+  "attributes-:hasWings":  true
+}
+
+// results in
+
+[
+  {
+    name: "Bird",
+    attributes: {
+      legs: 2,
+      hasWings: true
+    }
+  }
+]
+
+// conversely, add a + to a path to force it into a collection
+
+```
+
 
 ##### Pathing example
 
