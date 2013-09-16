@@ -37,14 +37,16 @@ npm install treeize
 
 ```js
 
-treeize.options([options]); // universal getter/setter for options.  If options are passed, extends default options with user-entered ones.
+treeize.options([options]); // universal getter/setter for options.  Returns self.
 
-// where default, overrideable options are as follows:
+// default options are as follows:
 
 {
-  delimiter:        ':',          // default path delimiter is a colon, as in "foo:bar:baz"
+  delimiter:        ':',          // Path delimiter, as in "foo:bar:baz"
   collections: {
-    auto:           true          // set to false for full control of pathing via + and - operators
+    auto:           true          // Defaults to pluralized detection for collections.
+                                  // Setting to false requires + operators for
+                                  // every collection.
   }
 }
 ```
@@ -99,7 +101,8 @@ indicators.
   }
 ]
 
-// to tell treeize that the node (detected as a plural collection) is NOT a collection, add a - to the path
+// to tell treeize that the node (detected as a plural collection)
+// is NOT a collection, add a - to the path
 
 {
   "name":                 "Bird",
