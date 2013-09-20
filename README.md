@@ -43,6 +43,7 @@ treeize.options([options]); // universal getter/setter for options.  Returns sel
 
 {
   delimiter:        ':',          // Path delimiter, as in "foo:bar:baz"
+  benchmark:        false,        // Set to true to log benchmark & compression stats
   collections: {
     auto:           true          // Defaults to pluralized detection for collections.
                                   // Setting to false requires + operators for

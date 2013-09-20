@@ -146,8 +146,10 @@ module.exports = {
     test.expect(1);
     test.deepEqual(treeize.options(), {
       delimiter: ':',
+      debug:              false,
+      benchmark:          false,
       collections: {
-        auto:  true
+        auto:             true,
       }
     });
     test.done();

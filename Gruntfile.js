@@ -11,7 +11,7 @@ module.exports = function (grunt) {
             options: {
                 "node"     : true,
                 "browser"  : true,
-                "boss"     : false,
+                "boss"     : true,
                 "curly"    : true,
                 "debug"    : false,
                 "devel"    : false,
