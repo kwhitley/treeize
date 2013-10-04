@@ -43,7 +43,11 @@ treeize.options([options]); // universal getter/setter for options.  Returns sel
 
 {
   delimiter:        ':',          // Path delimiter, as in "foo:bar:baz"
-  benchmark:        false,        // Set to true to log benchmark & compression stats
+  benchmark: {
+    speed:          false,        // Enable/Disable performance logging
+    size:           false         // Enable/Disable compression logging
+  },
+  fast:             false,        // Enable/Disable Fast Mode (see below)
   collections: {
     auto:           true          // Defaults to pluralized detection for collections.
                                   // Setting to false requires + operators for
@@ -161,12 +165,15 @@ indicators.
 - To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.
 - Use a `:` delimiter (default) to seperate path nodes.  To change this, use the `treeize.set([options])` function.
 
-### Assumptions
+### Fast Mode
 
-This library has several assumptions that make it possible.
+Setting the options `{ fast: true }` enables Fast Mode.  In this mode, the column/attribute signature is
+pulled from the first row and applied to all other rows.  This makes the algorithm about 30% faster for a large
+data set by not having to fully analyze the pathing of each row.  Only use this when you are certain
+each row contains identical column/attribute names.
 
-1. That each row represents a singular child item, that may contain many repeated ancestor columns.
-2. That each element in a collection node (including the root) will have a unique identifying signature (necessary to prevent duplication).  This can be any one attribute, or the combination of any/all attributes.
+_This is set to `false` by default for backwards compatibility, and to embrace more complicated
+data sets (where the attributes may be different for each row)._
 
 ## Examples
 
