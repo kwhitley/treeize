@@ -147,7 +147,11 @@ module.exports = {
     test.deepEqual(treeize.options(), {
       delimiter: ':',
       debug:              false,
-      benchmark:          false,
+      benchmark: {
+        speed:            true,
+        size:             true
+      },
+      fast:               false,
       collections: {
         auto:             true,
       }
