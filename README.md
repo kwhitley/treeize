@@ -48,6 +48,7 @@ treeize.options([options]); // universal getter/setter for options.  Returns sel
     size:           false         // Enable/Disable compression logging
   },
   fast:             false,        // Enable/Disable Fast Mode (see below)
+  prune:            false,        // Enable/Disable empty/null pruning (see below)
   collections: {
     auto:           true          // Defaults to pluralized detection for collections.
                                   // Setting to false requires + operators for
@@ -167,13 +168,19 @@ indicators.
 
 ### Fast Mode
 
-Setting the options `{ fast: true }` enables Fast Mode.  In this mode, the column/attribute signature is
+Setting the option `{ fast: true }` enables Fast Mode.  In this mode, the column/attribute signature is
 pulled from the first row and applied to all other rows.  This makes the algorithm about 30% faster for a large
 data set by not having to fully analyze the pathing of each row.  Only use this when you are certain
 each row contains identical column/attribute names.
 
 _This is set to `false` by default for backwards compatibility, and to embrace more complicated
 data sets (where the attributes may be different for each row)._
+
+### Node Pruning
+
+Setting the option `{ prune: true }` enables Pruning Mode, courtesy of [@EvanK](https://github.com/EvanK).  As he points out, complex joins
+can often leave a slew of blank or nulled branches.  Enabling Prune Mode removes those, leaving only populated fields.
+Big thanks for the complete PR (with tests)!
 
 ## Examples
 
