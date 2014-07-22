@@ -1,27 +1,88 @@
 var treeize = require('../lib/treeize');
+var _       = require('lodash');
 
-var flatData1 = [
+var arrayData = [
+  ["name", "age", "toys:name", "toys:owner:name"],  // header row
+  ["Mittens", 12, "mouse", "Mittens"],              // data row 1
+  ["Mittens", 12, "yarn", "Ms. Threadz"],           // data row 2
+  ["Tiger", 7, "a stick", "Mother Nature"]          // data row 3
+];
+
+var flatData = [
   {
     "name":             "Mittens",
     "age":              12,
+    "remove":           null,
     "toys:name":        "mouse",
-    "toys:owner:name":  "Mittens"
+    "toys:owner:name":  "Mittens",
   },
   {
     "name":             "Mittens",
     "age":              12,
+    "remove":           null,
     "toys:name":        "yarn",
-    "toys:owner:name":  "Ms. Threadz"
+    "toys:owner:name":  "Ms. Threadz",
   },
   {
     "name":             "Tiger",
     "age":              7,
     "toys:name":        "a stick",
-    "toys:owner:name":  "Mother Nature"
+    "toys:owner:name":  "Mother Nature",
+  },
+  {
+    "name":             "Tiger",
+    "age":              7,
+    "prune:remove1":    "",
+    "prune:remove2":    null,
+    "prune:remove3":    undefined,
+    "toys:name":        null,
   }
 ];
 
-var treeData1 = [
+var originalData = _.cloneDeep(flatData);
+var originalOptions = treeize.options();
+
+var treeData = [
+  {
+    "name": "Mittens",
+    "age": 12,
+    "remove": null,
+    "toys": [
+      {
+        "name": "mouse",
+        "owner": {
+          "name": "Mittens"
+        }
+      },
+      {
+        "name": "yarn",
+        "owner": {
+          "name": "Ms. Threadz"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Tiger",
+    "age": 7,
+    "toys": [
+      {
+        "name": "a stick",
+        "owner": {
+          "name": "Mother Nature"
+        }
+      },
+      { "name": null }
+    ],
+    "prune": {
+      "remove1":          "",
+      "remove2":          null,
+      "remove3":          undefined,
+    }
+  }
+];
+
+var treeDataPruned = [
   {
     "name": "Mittens",
     "age": 12,
@@ -49,8 +110,8 @@ var treeData1 = [
         "owner": {
           "name": "Mother Nature"
         }
-      }
-    ]
+      },
+    ],
   }
 ];
 
@@ -141,132 +202,8 @@ var treeDataMixed = [
   }
 ];
 
-var flatDataPruneable = [
-  {
-    "prop1": "val1",
-    "items:foo": null,
-    "items:bar": null
-  },
-  {
-    "prop2": null,
-    "items:foo": 0,
-    "items:bar": "",
-    "items:baz": false,
-    "items:bob": undefined,
-    "items:boyd": null
-  },
-  {
-    "prop3": null,
-    "group1:lorem": 0,
-    "group1:ipsum:alpha": null,
-    "group1:ipsum:bravo": null,
-    "group1:dolor+:0": "charlie",
-    "group1:dolor+:1": "delta",
-    "group1:dolor+:2": null,
-    "group1:dolor+:3": "echo"
-  },
-  {
-    "prop4": null,
-    "group2:sit":null,
-    "group2:amet":null
-  }
-];
-
-var treeDataPruneable = [
-  {
-    "prop1": "val1",
-    "items": [
-      {
-        "bar": null,
-        "foo": null
-      }
-    ]
-  },
-  {
-    "prop2": null,
-    "items": [
-      {
-        "boyd": null,
-        "bob": undefined,
-        "baz": false,
-        "bar": "",
-        "foo": 0,
-      }
-    ]
-  },
-  {
-    "prop3": null,
-    "group1": {
-      "lorem": 0,
-      "dolor": [
-        {
-          "0": "charlie",
-          "1": "delta",
-          "2": null,
-          "3": "echo"
-        }
-      ],
-      "ipsum": {
-        "bravo": null,
-        "alpha": null
-      }
-    }
-  },
-  {
-    "prop4": null,
-    "group2": {
-      "amet": null,
-      "sit": null
-    }
-  }
-];
-
-var treeDataPruned = [
-  {
-    "prop1": "val1",
-    "items": []
-  },
-  {
-    "items": [
-      {
-        "baz": false,
-        "bar": "",
-        "foo": 0
-      }
-    ]
-  },
-  {
-    "group1": {
-      "lorem": 0,
-      "dolor": [
-        {
-          "0": "charlie",
-          "1": "delta",
-          "3": "echo"
-        }
-      ]
-    }
-  }
-];
 
 module.exports = {
-  'default .options() returns expected defaults': function (test) {
-    test.expect(1);
-    test.deepEqual(treeize.options(), {
-      delimiter: ':',
-      debug:              false,
-      benchmark: {
-        speed:            true,
-        size:             true
-      },
-      fast:               false,
-      prune:              false,
-      collections: {
-        auto:             true,
-      }
-    });
-    test.done();
-  },
   '.options() correctly sets options': function (test) {
     treeize.setOptions({ delimiter: '+' });
     test.expect(1);
@@ -283,9 +220,14 @@ module.exports = {
     test.ok(treeize.options({ delimiter: ':' }).grow);
     test.done();
   },
+  'deepEqual ignores attribute order': function (test) {
+    test.expect(1);
+    test.deepEqual({ id: 1, foo: 'bar' }, { foo: 'bar', id: 1});
+    test.done();
+  },
   '.grow expands correctly': function (test) {
     test.expect(1);
-    test.deepEqual(treeize.grow(flatData1), treeData1);
+    test.deepEqual(treeize.grow(flatData), treeData);
     test.done();
   },
   '.grow expands auto+manual declarations correctly': function (test) {
@@ -293,17 +235,52 @@ module.exports = {
     test.deepEqual(treeize.grow(flatDataNonPlural), treeDataMixed);
     test.done();
   },
-  '.grow expands manual collection declarations correctly': function (test) {
+  // '.grow expands manual collection declarations correctly': function (test) {
+  //   test.expect(1);
+  //   test.deepEqual(treeize.grow(flatDataNonPlural, { collections: { auto: false }}), treeDataManual);
+  //   console.log('TREEIZE GLOBAL OPTIONS:', treeize.options());
+  //   console.log('TREEIZE original OPTIONS:', treeize.options());
+  //   test.done();
+  // },
+  '.grow options to not override global options': function (test) {
     test.expect(1);
-    treeize.options({ collections: { auto: false }});
-    test.deepEqual(treeize.grow(flatDataNonPlural), treeDataManual);
+    test.deepEqual(treeize.options(), originalOptions);
     test.done();
   },
-  '.grow removes nulls correctly with prune option': function (test) {
-    test.expect(2);
-    treeize.options({ collections: { auto: true }});
-    test.deepEqual(treeize.grow(flatDataPruneable), treeDataPruneable);
-    test.deepEqual(treeize.grow(flatDataPruneable,{prune:true}), treeDataPruned);
+  '.grow does not modify original data': function (test) {
+    test.expect(1);
+    test.deepEqual(flatData, originalData);
     test.done();
-  }
+  },
+  // '.treeize merges as expected': function (test) {
+  //   var a = { name: 'cat', toys: [{ name: 'ball' }]};
+  //   var b = { name: 'cat', toys: [{ name: 'mouse' }]};
+  //   var c = [{ name: 'dog', age: 12 }];
+
+  //   var results1 = [
+  //     { name: 'cat', toys: [{ name: 'ball' }, { name: 'mouse' }]}
+  //   ];
+
+  //   var results2 = [
+  //     { name: 'cat', toys: [{ name: 'ball' }, { name: 'mouse' }]},
+  //     { name: 'dog', age: 12 }
+  //   ];
+
+  //   test.expect(1);
+  //   test.deepEqual(treeize.grow(a,b), results1);
+  //   test.done();
+  // },
+
+  '.grow pruned correctly': function (test) {
+    test.expect(1);
+    test.deepEqual(treeize.grow(flatData, { prune: true }), treeDataPruned);
+    test.done();
+  },
+  // '.grow removes nulls correctly with prune option': function (test) {
+  //   test.expect(2);
+  //   treeize.options({ collections: { auto: true }});
+  //   test.deepEqual(treeize.grow(flatDataPruneable), treeDataPruneable);
+  //   test.deepEqual(treeize.grow(flatDataPruneable, { prune: true }), treeDataPruned);
+  //   test.done();
+  // }
 };
