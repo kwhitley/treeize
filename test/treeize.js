@@ -12,14 +12,14 @@ var flatData = [
   {
     "name":             "Mittens",
     "age":              12,
-    "remove":           null,
+    // "remove":           null,
     "toys:name":        "mouse",
     "toys:owner:name":  "Mittens",
   },
   {
     "name":             "Mittens",
     "age":              12,
-    "remove":           null,
+    // "remove":           null,
     "toys:name":        "yarn",
     "toys:owner:name":  "Ms. Threadz",
   },
@@ -32,10 +32,11 @@ var flatData = [
   {
     "name":             "Tiger",
     "age":              7,
-    "prune:remove1":    "",
-    "prune:remove2":    null,
-    "prune:remove3":    undefined,
-    "toys:name":        null,
+    // "prune:remove1":    "",
+    // "prune:remove2":    null,
+    // "prune:remove3":    undefined,
+    // "toys:name":        null,
+    // "toys:owner:name":  null,
   }
 ];
 
@@ -46,7 +47,7 @@ var treeData = [
   {
     "name": "Mittens",
     "age": 12,
-    "remove": null,
+    // "remove": null,
     "toys": [
       {
         "name": "mouse",
@@ -72,13 +73,12 @@ var treeData = [
           "name": "Mother Nature"
         }
       },
-      { "name": null }
     ],
-    "prune": {
-      "remove1":          "",
-      "remove2":          null,
-      "remove3":          undefined,
-    }
+    // "remove": {
+    //   "remove1":          "",
+    //   "remove2":          null,
+    //   "remove3":          undefined,
+    // }
   }
 ];
 
