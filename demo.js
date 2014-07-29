@@ -20,6 +20,17 @@ function Treeize(options) {
     }
   };
 
+  this.stats = {
+    time:     {
+      total:  0,
+      signatures: 0,
+    },
+    rows:     0,
+    sources:  0,
+    tA:       null,
+    tB:       null,
+  };
+
   if (options) {
     this.options(options);
   }
@@ -32,6 +43,9 @@ Treeize.prototype.signature = function(row) {
   if (!row) {
     return this.data.signature;
   }
+
+  // start timer
+  this.stats.tA = (new Date()).getTime();
 
   var attributes    = this.data.signature.attributes = [];
   var nodes         = this.data.signature.nodes = [];
@@ -68,6 +82,11 @@ Treeize.prototype.signature = function(row) {
 
   attributes.sort(function(a, b) { return a.split.length < b.split.length ? -1 : 1; });
   nodes.sort(function(a, b) { return a.depth < b.depth ? -1 : 1; });
+
+  // end timer and add time
+  this.stats.tB = ((new Date()).getTime() - this.stats.tA);
+  this.stats.time.signature += this.stats.tB;
+  this.stats.time.total += this.stats.tB;
 
   return this;
 };
@@ -219,40 +238,46 @@ Treeize.prototype.toString = function treeToString() {
 
 var flatData = [
   {
-    "toys:name":                  "mouse",
-    "toys:owner:name":            "Mittens",
-    "toys:type":                  "stuffed animal",
-    "toys:histories:modified":    "10/12/2014",
-    "name":                       "Mittens",
-    "age":                        12,
+    "code":                       "RA",
+    "reservoirs:code":            "LB",
+    "wells:uwi":                  "RA-001",
+    "wells:reservoirs:code":      "LB",
+    "wells:logs:oilrate":      5000,
+    "wells:logs:date":         "12/12/2014",
   },
   {
-    "toys:name":                  "mouse",
-    "toys:owner:name":            "Mittens",
-    "toys:type":                  "stuffed animal",
-    "toys:histories:modified":    "1/1/2015",
-    "name":                       "Mittens",
-    "age":                        12,
+    "code":                       "RA",
+    "reservoirs:code":            "LB",
+    "wells:uwi":                  "RA-001",
+    "wells:reservoirs:code":      "LB",
+    "wells:logs:oilrate":      5050,
+    "wells:logs:date":         "12/13/2014",
   },
   {
-    "name":             "Mittens",
-    "age":              12,
-    "toys:name":        "yarn",
-    "toys:histories:modified":    "12/25/2002",
-    "toys:owner:name":  "Ms. Threadz",
-    // "toys:type":                  "misc",
+    "code":                       "RA",
+    "reservoirs:code":            "LB",
+    "wells:uwi":                  "RA-001",
+    "wells:reservoirs:code":      "LB",
+    "wells:logs:wc":      0.5,
+    "wells:logs:date":         "12/13/2014",
   },
   {
-    "name":             "Tiger",
-    "age":              7,
-    "toys:name":        "a stick",
-    "toys:owner:name":  "Mother Nature",
-    "toys:lastBorrowedBy":  "Mittens",
+    "code":                 "RA",
+    "reservoirs:code":            "UB",
+    "wells:uwi":                  "RA-002",
+    "wells:reservoirs:code":      "UB",
+    "wells:logs:oilrate":      4500,
+    "wells:logs:date":         "12/12/2014",
   },
-  // {
-  //   "name":             "Tiger",
-  //   "age":              7,
-  // }
+  {
+    "code":                 "SA",
+    "reservoirs:code":            "MA",
+    "wells:uwi":                  "SA-032",
+    "wells:reservoirs:code":      "MA",
+    "wells:logs:oilrate":      2050,
+    "wells:logs:date":         "12/12/2014",
+  },
+
 ];
 
 
@@ -271,6 +296,7 @@ pets
 ;
 
 console.log('FINAL>', pets + '');
+console.log('STATS>', pets.stats.time);
 
 /*
 
