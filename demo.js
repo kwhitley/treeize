@@ -212,7 +212,7 @@ Treeize.prototype.grow = function(data, options) {
             if (!(t = _.findWhere(trail[node.name], blueprint))) {
               trail[node.name].push(trail = blueprintExtended);
             } else {
-              _.extend(trail, blueprintExtended);
+              _.extend(t, blueprintExtended);
             }
             trails[node.path] = t || trail;
           }
@@ -305,6 +305,33 @@ var flatData = [
   },
 ];
 
+var additionalFlatData = [
+  {
+    "code":                 "RA",
+    "reservoirs:code":            "UB",
+    "wells:uwi":                  "RA-002",
+    "wells:reservoirs:code":      "UB",
+    "wells:log+:wc":            0.6,
+    "wells:log+:*date":         "12/14/2014",
+  },
+  {
+    "code":                       "SA",
+    "reservoirs:code":            "MA",
+    "wells:uwi":                  "SA-032",
+    "wells:reservoirs:code":      "MA",
+    "wells:log+:wc":            0.1,
+    "wells:log+:*date":         "12/12/2014",
+  },
+  {
+    "code":                       "SA",
+    "reservoirs:code":            "MA",
+    "wells:uwi":                  "SA-032",
+    "wells:reservoirs:code":      "MA",
+    "wells:log+:wc":              0.2,
+    "wells:log+:*date":         "12/13/2014",
+  }
+];
+
 var arrayData = [
   ["code", "reservoirs:code", "wells:uwi", "wells:reservoirs:code", "wells:logs:oilrate", "wells:logs:date"],
   ["RA", "LB", "RA-001", "LB", 5000, "12/12/2014"],
@@ -320,6 +347,8 @@ pets
   // .options({ processing: { uniform: false } })
   // .grow(flatData)
   .grow(flatData, { data: { uniform: false }})
+  .grow(additionalFlatData)
+
   // .grow(arrayData)
   // .signature(flatData[0])
   // .signature(["foo:bar:id", "foo:bar:baz", "id"])
