@@ -4,20 +4,17 @@ var inflection  = require('inflection');
 
 function Treeize(options) {
   this.data = {
-    signature: {
-      attributes: [],
-      nodes:      [],
-    },
+    signature: [],
     seed: [],
     tree: [],
   };
 
   this._options = {
-    delimiter: ':',
-    processing: {
-      allowEmpty: true,
+    delimiter:    ':',
+    data: {
       uniform:    true,
-    }
+    },
+    debug:        false,
   };
 
   this.stats = {
@@ -38,6 +35,11 @@ function Treeize(options) {
   return this;
 }
 
+Treeize.prototype.debug = function() {
+  if (this.options().debug) {
+    console.log.apply(this, arguments);
+  }
+};
 
 Treeize.prototype.signature = function(row) {
   if (!row) {
@@ -47,108 +49,154 @@ Treeize.prototype.signature = function(row) {
   // start timer
   this.stats.tA = (new Date()).getTime();
 
-  var attributes    = this.data.signature.attributes = [];
-  var nodes         = this.data.signature.nodes = [];
+  var nodes         = this.data.signature = [];
   var isArray       = _.isArray(row);
 
   _.each(row, function(value, key) {
-
     // set up attribute
     var attr        = {}
 
-    attr.key        = key;
+    attr.key        = typeof key === 'number' ? key : key.replace(/[\*\+\-]/gi,'');
     attr.fullPath   = isArray ? value : key;
     attr.split      = attr.fullPath.split(this.options().delimiter);
-    attr.path       = _.initial(attr.split).join(this.options().delimiter);
-    attr.parent     = _.initial(attr.split, 2).join(this.options().delimiter);
-    attr.attr       = _.last(attr.split);
+    attr.path       = _.initial(attr.split).join(this.options().delimiter).replace(/[\*\+\-]/gi,'');
+    attr.parent     = _.initial(attr.split, 2).join(this.options().delimiter).replace(/[\*\+\-]/gi,'');
+    attr.attr       = _.last(attr.split).replace(/[\*\+\-]/gi,'');
     attr.node       = attr.split[attr.split.length - 2];
+    attr.pk         = attr.node && attr.node.match(/\*/gi);
+
+
+    if (attr.pk) {
+      console.log('primary key detected in node "' + attr.node + '"');
+    }
+
+    // if (attr.node) {
+    //   attr.node = attr.node.replace(/[\*\+\-]/gi,'');
+    // }
 
     // set up node reference
     var node        = _.findWhere(nodes, { path: attr.path });
     if (!node) {
-      node = { path: attr.path, attributes: [] };
+      node = { path: attr.path, attributes: [], blueprint: [] };
       nodes.push(node);
+    }
+
+    // if (target.node.match(/[\+\-]$/)) {
+    //   isCollection = target.node.match(/\+$/) || isCollection;
+    //   isCollection = isCollection && !target.node.match(/\-$/);
+
+    //   target.node = target.node.replace(/[\+\-]$/, '');
+    // }
+
+    node.isCollection = !attr.node || inflection.pluralize(attr.node) === attr.node;
+
+    var collectionFlag = attr.node && attr.node.match(/[\+\-]/gi);
+    if (collectionFlag) {
+      console.log('collection flag "' + collectionFlag + '" detected in node "' + attr.node + '"');
+      node.flags = true;
+      node.isCollection = attr.node.match(/\+/gi).length;
+      attr.node = attr.node.replace(/[\*\+\-]/gi,''); // clean node
     }
 
     node.name         = attr.node;
     node.depth        = attr.split.length - 1;
-    node.isCollection = !attr.path || inflection.pluralize(attr.path) === attr.path;
-    node.parent       = attr.parent;
-    node.attributes.push(attr.attr);
-
-    attributes.push(attr);
+    node.parent       = _.initial(attr.split, 2).join(this.options().delimiter);
+    node.attributes.push({ name: attr.attr, key: attr.key });
+    if (attr.pk) {
+      node.blueprint.push({ name: attr.attr, key: attr.key });
+    }
   }, this);
 
-  attributes.sort(function(a, b) { return a.split.length < b.split.length ? -1 : 1; });
   nodes.sort(function(a, b) { return a.depth < b.depth ? -1 : 1; });
 
   // end timer and add time
   this.stats.tB = ((new Date()).getTime() - this.stats.tA);
-  this.stats.time.signature += this.stats.tB;
+  this.stats.time.signatures += this.stats.tB;
   this.stats.time.total += this.stats.tB;
 
   return this;
 };
 
 
-Treeize.prototype.grow = function(data) {
-  var d = data || this.data.seed || [];
-  var opt = this.options();
+Treeize.prototype.grow = function(data, options) {
+  var opt = _.extend(this.options(), options || {});
 
-  if (!this.data.signature.length) {
-    this.signature(d[0]);
-  }
+  this.debug('OPTIONS>', opt);
 
   var signature = this.signature();
-  // console.log('SIGNATURE>', typeof signature);
-  //
-  console.log(signature.nodes);
 
-  _.each(this.data.seed, function(row) {
+  if (!signature.length) {
+    this.signature(data[0]);
+
+    if (_.isArray(data[0])) {
+      // remove header row
+      data.shift();
+    }
+
+    signature = this.signature();
+  }
+
+  console.log('SIGNATURE>', util.inspect(this.signature(), false, null));
+
+  this.stats.sources++;
+  this.stats.tA = (new Date()).getTime();
+
+  _.each(data, function(row) {
     var trails = {}; // LUT for trails (find parent of new node in trails path)
     var trail = root = this.data.tree;
     var t = null;
 
-    if (!opt.processing.uniform) {
+    if (!opt.data.uniform) {
       // get signature from each row
-      signature = this.signature(row).data.signature;
-      console.log('SIGNATURE>', signature);
+      this.signature(row);
+      console.log('SIGNATURE>', util.inspect(this.signature(), false, null));
     }
 
-    _.each(signature.nodes, function(node) {
-      console.log('PROCESSING NODE>', node);
+    this.stats.rows++;
+
+    if (_.where(this.signature(), { flags: true }).length) {
+      // flags detected within signature, clean attributes of row
+      _.each(row, function(value, key) {
+
+        if (typeof key === 'string') {
+          var clean = key.replace(/[\*\+\-]/gi,'');
+          if (clean !== key) {
+            console.log('cleaning key "' + key + '" and embedding as "' + clean + '"');
+            row[key.replace(/[\*\+\-]/gi,'')] = value; // simply embed value at clean path (if not already)
+          }
+
+        }
+      });
+    }
+
+    _.each(this.signature(), function(node) {
+      this.debug('PROCESSING NODE>', node);
       var blueprint = {};
 
       _.each(node.attributes, function(attribute) {
-        var key = (node.path ? (node.path + ':') : '') + attribute;
-        console.log('KEY>', key);
-        blueprint[attribute] = row[key];
-      });
-      console.log('BLUEPRINT>', blueprint);
+        var key = (node.path ? (node.path + ':') : '') + attribute.name;
+        this.debug('KEY>', key, attribute.key);
+        blueprint[attribute.name] = row[attribute.key];
+      }, this);
+      this.debug('BLUEPRINT>', blueprint);
 
       // ROOT CASE
       if (!(trail = trails[node.parent])) {
-        console.log('PARENT TRAIL NOT FOUND (ROOT?)');
+        this.debug('PARENT TRAIL NOT FOUND (ROOT?)');
         if (!(trail = _.findWhere(root, blueprint))) {
           root.push(trail = blueprint);
         }
-        // console.log('ROOT TRAIL>', trail);
         trails[node.path] = trail;
       } else {
         // NOT ROOT CASE
-        // console.log('PARENT TRAIL FOUND', trail);
         if (node.isCollection) {
           // handle collection nodes
           if (!trail[node.name]) {
             // node attribute doesnt exist, create array with fresh blueprint
-            console.log('creating attribute "' + node.name + '" as collection with blueprint');
             trail[node.name] = [blueprint];
             trails[node.path] = blueprint;
           } else {
-            console.log('collection attribute "' + node.name + '" found');
             // node attribute exists, find or inject blueprint
-            // trail = _.findWhere(trail[node.name], blueprint) || trail[node.name].push(trail = blueprint);
             var t;
             if (!(t = _.findWhere(trail[node.name], blueprint))) {
               trail[node.name].push(trail = blueprint);
@@ -159,54 +207,23 @@ Treeize.prototype.grow = function(data) {
           // handle non-collection nodes
           if (!trail[node.name]) {
             // node attribute doesnt exist, create object
-            console.log('creating attribute "' + node.name + '" as blueprint');
             trail[node.name] = blueprint;
             trails[node.path] = blueprint;
           } else {
-            console.log('found attribute "' + node.name + '" and storing in trails table');
             // node attribute exists, set path for next pass
             trails[node.path] = trail[node.path];
           }
         }
       }
 
-      // find or inject attribute
-
-      // trail = trail[node.path] = trail[node.path] || (node.isCollection ? [blueprint] : blueprint)
-
-      /*
-
-        1. find or create parent node, set trail
-        2. add node (or find if existing), set trail in table
-        3. extend blueprint (or push if collection)
-
-       */
-
-      // if (_.isArray(trail)) {
-      //   // find or push new node
-      // } else {
-
-      // }
-
-      // if (node.path) {
-      //   // set up path
-      //   trail = trail[node.path] = trail[node.path] || (node.isCollection ? [blueprint] : blueprint);
-      //   trail = blueprint;
-      // } else {
-      //   var t = _.findWhere(trail, blueprint);
-      //   trail = t || trail.push(trail = blueprint);
-      // }
-
-      console.log('TREE>', this.data.tree);
-      // console.log('TRAIL>', trail);
-
-      // if (!(t = _.findWhere(trail, blueprint))) {
-      //   trail.push(trail = blueprint); // trail traverses inside to pushed blueprint
-      //   console.log('TRAIL AT>', trail);
-      // }
-
     }, this);
   }, this);
+
+  this.stats.tB = ((new Date()).getTime() - this.stats.tA);
+  this.stats.time.total += this.stats.tB;
+
+  // clear signature between growth sets
+  this.signature([]);
 
   return this;
 };
@@ -215,16 +232,10 @@ Treeize.prototype.grow = function(data) {
 
 Treeize.prototype.options = function(options) {
   if (!options) {
-    return this._options;
+    return _.extend({}, this._options);
   }
 
   _.extend(this._options, options);
-
-  return this;
-};
-
-Treeize.prototype.seed = function(data) {
-  this.data.seed = data;
 
   return this;
 };
@@ -242,53 +253,61 @@ var flatData = [
     "reservoirs:code":            "LB",
     "wells:uwi":                  "RA-001",
     "wells:reservoirs:code":      "LB",
-    "wells:logs:oilrate":      5000,
-    "wells:logs:date":         "12/12/2014",
+    "wells:log+:oilrate":          5000,
+    "wells:log+:date":             "12/12/2014",
   },
   {
     "code":                       "RA",
     "reservoirs:code":            "LB",
     "wells:uwi":                  "RA-001",
     "wells:reservoirs:code":      "LB",
-    "wells:logs:oilrate":      5050,
-    "wells:logs:date":         "12/13/2014",
+    "wells:log:oilrate":      5050,
+    "wells:log:date":         "12/13/2014",
   },
   {
     "code":                       "RA",
     "reservoirs:code":            "LB",
     "wells:uwi":                  "RA-001",
     "wells:reservoirs:code":      "LB",
-    "wells:logs:wc":      0.5,
-    "wells:logs:date":         "12/13/2014",
+    "wells:log:wc":      0.5,
+    "wells:log:date":         "12/13/2014",
   },
   {
     "code":                 "RA",
     "reservoirs:code":            "UB",
     "wells:uwi":                  "RA-002",
     "wells:reservoirs:code":      "UB",
-    "wells:logs:oilrate":      4500,
-    "wells:logs:date":         "12/12/2014",
+    "wells:log:oilrate":      4500,
+    "wells:log:date":         "12/12/2014",
   },
   {
     "code":                 "SA",
     "reservoirs:code":            "MA",
     "wells:uwi":                  "SA-032",
     "wells:reservoirs:code":      "MA",
-    "wells:logs:oilrate":      2050,
-    "wells:logs:date":         "12/12/2014",
+    "wells:log:oilrate":      2050,
+    "wells:log:date":         "12/12/2014",
   },
+];
 
+var arrayData = [
+  ["code", "reservoirs:code", "wells:uwi", "wells:reservoirs:code", "wells:logs:oilrate", "wells:logs:date"],
+  ["RA", "LB", "RA-001", "LB", 5000, "12/12/2014"],
+  ["RA", "LB", "RA-001", "LB", 5050, "12/13/2014"],
+  ["RA", "UB", "RA-002", "UB", 4500, "12/12/2014"],
+  ["SA", "MA", "SA-032", "MA", 2050, "12/12/2014"],
 ];
 
 
 
-var pets = new Treeize({ debug: "false" });
+var pets = new Treeize();
 pets
-  .options({ processing: { uniform: false } })
-  .seed(flatData)
+  // .options({ processing: { uniform: false } })
+  .grow(flatData)//, { data: { uniform: false }})
+  // .grow(arrayData)
   // .signature(flatData[0])
   // .signature(["foo:bar:id", "foo:bar:baz", "id"])
-  .grow() // or .grow(flatData)
+  // .grow() // or .grow(flatData)
   // .grow(flatData) // or .grow(flatData)
   // .grow({ options: "options" }) // or .grow(flatData)
   // .grow({ options: "options" }) // or .grow(flatData)
@@ -296,7 +315,7 @@ pets
 ;
 
 console.log('FINAL>', pets + '');
-console.log('STATS>', pets.stats.time);
+console.log('STATS>', util.inspect(pets.stats, false, null));
 
 /*
 
