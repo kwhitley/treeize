@@ -52,32 +52,35 @@ var flatData = [
   },
 ];
 
-var additionalFlatData = [
+var keywordsTest = [
   {
-    "code":                       "RA",
+    "code*":                       "RA",
     "reservoirs:code":            "UB",
     "wells:uwi":                  "RA-002",
     "wells:reservoirs:code":      "UB",
-    // "wells:log+:wc":              0.6,
-    // "wells:log+:*date":           "12/14/2014",
+    // "keywords+":                  "baz"
   },
   {
-    "code":                       "SA",
+    "code*":                       "SA",
     "reservoirs:code":            "MA",
     "wells:uwi":                  "SA-032",
     "wells:reservoirs:code":      "MA",
     "wells:log:wc":               0.1,
     "wells:log:date":             "12/12/2014",
+    // "keywords+":                  "bar"
   },
   {
-    "code":                       "SA",
+    "code*":                       "SA",
     "reservoirs:code":            "MA",
     "wells:uwi":                  "SA-032",
     "wells:reservoirs:code":      "MA",
     "wells:log:wc":               0.2,
     "wells:log:date":             "12/13/2014",
+    // "keywords+":                  "foo"
   }
 ];
+
+
 
 var arrayData = [
   ["code", "reservoirs:code", "wells:uwi", "wells:reservoirs:code", "wells:logs:oilrate", "wells:logs:date"],
@@ -89,13 +92,16 @@ var arrayData = [
 
 
 
-var pets = new Treeize();
-pets
-  // .options({ processing: { uniform: false } })
-  // .grow(flatData)
-  .grow(flatData, { data: { uniform: true, prune: true }})
-  .grow(arrayData)
-;
+// var pets = new Treeize();
+// pets
+//   .grow(flatData, { data: { uniform: true, prune: true }})
+//   .grow(arrayData)
+// ;
 
-console.log('FINAL>', pets + '');
-console.log('STATS>', util.inspect(pets.stats, false, null));
+var keywords = new Treeize();
+keywords.grow(keywordsTest);
+
+// console.log('BASE>', pets + '');
+// console.log('STATS>', util.inspect(pets.stats, false, null), "\n\n");
+console.log('KEYWORDS>', keywords + '');
+console.log('STATS>', util.inspect(keywords.stats, false, null));
