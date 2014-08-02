@@ -35,15 +35,16 @@ var keywordsTest = [
 
 var fields = new Treeize();
 fields
+  .signature(welldata1[3])
   .grow(welldata1, { data: { uniform: true, prune: true }})
   .grow(welldata2, { data: { uniform: true, prune: true }})
-  .grow(arraywelldata)
+  // .grow(arraywelldata)
 ;
 
-var keywords = new Treeize();
-keywords.grow(keywordsTest);
+// var keywords = new Treeize();
+// keywords.grow(keywordsTest);
 
 console.log('BASE>', fields + '');
 console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
-console.log('KEYWORDS>', keywords + '');
-console.log('STATS>', util.inspect(keywords.stats, false, null));
+// console.log('KEYWORDS>', keywords + '');
+// console.log('STATS>', util.inspect(keywords.stats, false, null));
