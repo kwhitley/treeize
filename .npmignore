@@ -1,0 +1,4 @@
+.*
+Gruntfile.*
+/node_modules
+/test
