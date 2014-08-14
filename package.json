@@ -43,6 +43,6 @@
     "grunt-contrib-watch": "latest"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "grunt nodeunit"
   }
 }
