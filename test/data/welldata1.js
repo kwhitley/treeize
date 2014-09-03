@@ -35,7 +35,7 @@ module.exports = [
     "code":                       "RA",
     "reservoirs:code":            null,
     "wells:uwi":                  "RA-002",
-    "wells:reservoirs:code":      "UB",
+    "wells:reservoirs:code":      null,
     "wells:reservoir":            "UB",
     "wells:log+:oilrate":         4500,
     "wells:log+:*date":           "12/12/2014",

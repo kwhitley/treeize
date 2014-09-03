@@ -35,7 +35,7 @@ var keywordsTest = [
 
 var fields = new Treeize();
 fields
-  .setOptions({ debug: true, data: { uniformRows: true, prune: true } })
+  .setOptions({ debug: true, data: { uniformRows: false, prune: true } })
   .setSignature(welldata1[3])
   .grow(welldata1)
   .grow(welldata2)
