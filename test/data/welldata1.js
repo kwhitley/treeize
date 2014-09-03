@@ -32,12 +32,13 @@ module.exports = [
     "wells:log+:*date":         "12/13/2014",
   },
   {
-    "code":                 "RA",
-    "reservoirs:code":            "UB",
+    "code":                       "RA",
+    "reservoirs:code":            null,
     "wells:uwi":                  "RA-002",
     "wells:reservoirs:code":      "UB",
-    // "wells:log+:oilrate":         4500,
-    // "wells:log+:*date":           "12/12/2014",
+    "wells:reservoir":            "UB",
+    "wells:log+:oilrate":         4500,
+    "wells:log+:*date":           "12/12/2014",
   },
   {
     "code":                       "SA",
