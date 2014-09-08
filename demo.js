@@ -35,7 +35,7 @@ var keywordsTest = [
 
 var fields = new Treeize();
 fields
-  .setOptions({ debug: true, data: { uniformRows: false, prune: true } })
+  .setOptions({ log: true, data: { uniformRows: false, prune: true } })
   .setSignature(welldata1[3])
   .grow(welldata1)
   .grow(welldata2)
@@ -43,10 +43,36 @@ fields
   .grow(arraywelldata)
 ;
 
+var testData = [
+  {
+    'name': 'dog',
+    'fk':   1
+  },
+  {
+    'name': 'cat',
+    'fk:a': 'A',
+    'fk:b': 'B'
+  },
+  {
+    'name': 'dog',
+    'fk:a': 'X',
+    'fk:b': 'Y'
+  },
+];
+
+var test = new Treeize();
+test
+  .setOptions({ log: true, data: { uniformRows: false, prune: true } })
+  .grow(testData)
+;
+
 // var keywords = new Treeize();
 // keywords.grow(keywordsTest);
 
-console.log('BASE>', fields + '');
-console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
+// console.log('BASE>', fields + '');
+// console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
+
+console.log('BASE>', test + '');
+console.log('STATS>', util.inspect(test.stats, false, null), "\n\n");
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
