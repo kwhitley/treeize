@@ -45,8 +45,9 @@ fields
 
 var testData = [
   {
-    'name': 'dog',
-    'fk':   1
+    'name*': 'dog',
+    'fk':   1,
+    'pet': 'Fido'
   },
   {
     'name': 'cat',
@@ -54,15 +55,16 @@ var testData = [
     'fk:b': 'B'
   },
   {
-    'name': 'dog',
+    'name*': 'dog',
     'fk:a': 'X',
-    'fk:b': 'Y'
+    'fk:b': 'Y',
+    'pet':  'Mittens'
   },
 ];
 
 var test = new Treeize();
 test
-  .setOptions({ log: true, data: { uniformRows: false, prune: true } })
+  .setOptions({ log: true, data: { uniformRows: false, prune: true, objectOverwrite: true } })
   .grow(testData)
 ;
 
