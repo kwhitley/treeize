@@ -43,7 +43,9 @@ fields
   .grow(arraywelldata)
 ;
 
-var testData = [
+// test object overwrite
+
+var testDataOverwrite = [
   {
     'name*': 'dog',
     'fk':   1,
@@ -62,10 +64,37 @@ var testData = [
   },
 ];
 
-var test = new Treeize();
-test
-  .setOptions({ log: true, data: { uniformRows: false, prune: true, objectOverwrite: true } })
-  .grow(testData)
+var test1 = new Treeize();
+test1
+  .setOptions({ log: true, data: { uniformRows: false, objectOverwrite: true } })
+  .grow(testDataOverwrite)
+;
+
+// test root object injection
+
+var testDataRootObject = [
+  {
+    'name': 'kevin',
+    'pet': 'Fido'
+  },
+  {
+    // 'name': 'kevin',
+    // 'pet': 'Fido',
+    'comments:comment': 'I miss you',
+    'comments:date': '2014/09/10'
+  },
+  {
+    // 'name': 'kevin',
+    // 'pet': 'Fido',
+    'comments:comment': 'I really miss you',
+    'comments:date': '2014/09/11'
+  }
+];
+
+var test2 = new Treeize();
+test2
+  .setOptions({ log: true, data: { uniformRows: false, rootObject: true } })
+  .grow(testDataRootObject)
 ;
 
 // var keywords = new Treeize();
@@ -74,7 +103,10 @@ test
 // console.log('BASE>', fields + '');
 // console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
 
-console.log('BASE>', test + '');
-console.log('STATS>', util.inspect(test.stats, false, null), "\n\n");
+console.log('BASE>', test1 + '');
+console.log('STATS>', util.inspect(test1.stats, false, null), "\n\n");
+
+console.log('BASE>', test2 + '');
+console.log('STATS>', util.inspect(test2.stats, false, null), "\n\n");
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
