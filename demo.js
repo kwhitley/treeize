@@ -35,7 +35,7 @@ var keywordsTest = [
 
 var fields = new Treeize();
 fields
-  .setOptions({ log: true, data: { uniformRows: false, prune: true } })
+  .setOptions({ log: true, input: { uniformRows: false }, output: { prune: true }})
   .setSignature(welldata1[3])
   .grow(welldata1)
   .grow(welldata2)
@@ -66,7 +66,7 @@ var testDataOverwrite = [
 
 var test1 = new Treeize();
 test1
-  .setOptions({ log: true, data: { uniformRows: false, objectOverwrite: true } })
+  .setOptions({ log: true, input: { uniformRows: false }, output: { objectOverwrite: true }})
   .grow(testDataOverwrite)
 ;
 
@@ -92,9 +92,35 @@ var testDataRootObject = [
 
 var test2 = new Treeize();
 test2
-  .setOptions({ log: true, data: { uniformRows: false, resultsAsObject: true } })
+  .setOptions({ log: true, input: { uniformRows: false }, output: { resultsAsObject: true }})
   .grow(testDataRootObject)
 ;
+
+// test +- detection/removal
+
+var testPlusMinus = [
+  {
+    'name': 'kevin',
+    'owned-pets:name': 'Fido',
+    'owned-pets:age': 12,
+    'a+b': 'why not?',
+    'log-ref+:date': '2014/1/1'
+  },
+  {
+    'name': 'kevin',
+    'owned-pets:name': 'Fido',
+    'owned-pets:age': 12,
+    'a+b': 'why not?',
+    'log-ref+:date': '2014/1/2'
+  },
+];
+
+var test3 = new Treeize();
+test3
+  .setOptions({ log: true })
+  // .grow(testPlusMinus)
+;
+
 
 // var keywords = new Treeize();
 // keywords.grow(keywordsTest);
@@ -107,5 +133,8 @@ console.log('STATS>', util.inspect(test1.stats, false, null), "\n\n");
 
 console.log('BASE>', test2 + '');
 console.log('STATS>', util.inspect(test2.stats, false, null), "\n\n");
+
+console.log('BASE>', test3 + '');
+console.log('STATS>', util.inspect(test3.stats, false, null), "\n\n");
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
