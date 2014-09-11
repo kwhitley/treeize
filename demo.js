@@ -78,14 +78,13 @@ var testDataRootObject = [
     'pet': 'Fido'
   },
   {
-    // 'name': 'kevin',
-    // 'pet': 'Fido',
+    'age': 34,
+  },
+  {
     'comments:comment': 'I miss you',
     'comments:date': '2014/09/10'
   },
   {
-    // 'name': 'kevin',
-    // 'pet': 'Fido',
     'comments:comment': 'I really miss you',
     'comments:date': '2014/09/11'
   }
@@ -93,7 +92,7 @@ var testDataRootObject = [
 
 var test2 = new Treeize();
 test2
-  .setOptions({ log: true, data: { uniformRows: false, rootObject: true } })
+  .setOptions({ log: true, data: { uniformRows: false, resultsAsObject: true } })
   .grow(testDataRootObject)
 ;
 
