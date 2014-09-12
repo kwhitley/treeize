@@ -118,7 +118,7 @@ var testPlusMinus = [
 var test3 = new Treeize();
 test3
   .setOptions({ log: true })
-  // .grow(testPlusMinus)
+  .grow(testPlusMinus)
 ;
 
 
