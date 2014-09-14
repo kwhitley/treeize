@@ -39,13 +39,17 @@
   },
   "devDependencies": {
     "grunt": "latest",
+    "grunt-cli": "latest",
     "nodeunit": "latest",
+    "mocha": "latest",
+    "should": "latest",
     "grunt-contrib-jshint": "latest",
     "grunt-contrib-nodeunit": "latest",
     "grunt-contrib-watch": "latest",
-    "deep-diff": "~0.1.4"
+    "deep-diff": "~0.1.4",
+    "grunt-mocha-test": "~0.12.0"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "node_modules/.bin/grunt mocha"
   }
 }

@@ -70,57 +70,20 @@ test1
   .grow(testDataOverwrite)
 ;
 
-// test root object injection
+// test node dependency
 
-var testDataRootObject = [
+var testNodeDependency = [
   {
-    'name': 'kevin',
-    'pet': 'Fido'
-  },
-  {
-    'age': 34,
-  },
-  {
-    'comments:comment': 'I miss you',
-    'comments:date': '2014/09/10'
-  },
-  {
-    'comments:comment': 'I really miss you',
-    'comments:date': '2014/09/11'
+    'user:name': 'kevin',
+    'user:age': 34
   }
 ];
 
-var test2 = new Treeize();
-test2
-  .setOptions({ log: true, input: { uniformRows: false }, output: { resultsAsObject: true }})
-  .grow(testDataRootObject)
-;
-
-// test +- detection/removal
-
-var testPlusMinus = [
-  {
-    'name': 'kevin',
-    'owned-pets:name': 'Fido',
-    'owned-pets:age': 12,
-    'a+b': 'why not?',
-    'log-ref+:date': '2014/1/1'
-  },
-  {
-    'name': 'kevin',
-    'owned-pets:name': 'Fido',
-    'owned-pets:age': 12,
-    'a+b': 'why not?',
-    'log-ref+:date': '2014/1/2'
-  },
-];
-
-var test3 = new Treeize();
-test3
+var test4 = new Treeize();
+test4
   .setOptions({ log: true })
-  .grow(testPlusMinus)
+  .grow(testNodeDependency)
 ;
-
 
 // var keywords = new Treeize();
 // keywords.grow(keywordsTest);
@@ -131,10 +94,7 @@ test3
 console.log('BASE>', test1 + '');
 console.log('STATS>', util.inspect(test1.stats, false, null), "\n\n");
 
-console.log('BASE>', test2 + '');
-console.log('STATS>', util.inspect(test2.stats, false, null), "\n\n");
-
-console.log('BASE>', test3 + '');
-console.log('STATS>', util.inspect(test3.stats, false, null), "\n\n");
+console.log('BASE>', test4 + '');
+console.log('STATS>', util.inspect(test4.stats, false, null), "\n\n");
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
