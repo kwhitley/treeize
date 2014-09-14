@@ -9,10 +9,10 @@ var fields = new Treeize();
 fields
   // .setOptions({ log: true, input: { uniformRows: false }, output: { prune: true }})
   // .setSignature(welldata1[3])
-  .grow(welldata1, { input: { uniformRows: false }})
+  // .grow(welldata1)
   // .grow(welldata2)
   // .clearSignature()
-  // .grow(arraywelldata)
+  .grow(arraywelldata)
 ;
 
 // test node dependency

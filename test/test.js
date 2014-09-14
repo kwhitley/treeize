@@ -1,11 +1,59 @@
 var Treeize = require('../lib/treeize');
+var treeize = new Treeize();
 var should  = require('should');
 
 var welldata1 = require('./data/welldata1');
 var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
 
-describe('OPTIONS', function() {
+describe('#getOptions()', function() {
+  it('should return options', function() {
+    treeize.getOptions().log.should.be.false;
+    treeize.getOptions().input.delimiter.should.equal(':');
+  });
+});
+
+describe('#getStats()', function() {
+  var tree = new Treeize();
+  var stats = tree.grow([
+    { 'foo': 'bar', 'logs:a': 1 },
+    { 'foo': 'bar', 'logs:a': 2 },
+    { 'foo': 'baz', 'logs:a': 3 },
+  ]).getStats();
+
+  describe('.rows', function() {
+    it('should return number of rows processed', function() {
+      stats.rows.should.equal(3);
+    });
+  });
+
+  describe('.sources', function() {
+    it('should return number of sources/growth passes', function() {
+      stats.sources.should.equal(1);
+    });
+  });
+});
+
+describe('#resetOptions()', function() {
+  it('should be chainable', function() {
+    treeize.resetOptions().should.be.type('object');
+    treeize.resetOptions().should.have.property('grow');
+  });
+
+  it('should reset base options', function() {
+    treeize.setOptions({ log: true });
+    treeize.getOptions().log.should.be.true;
+    treeize.resetOptions();
+    treeize.getOptions().log.should.be.false;
+  });
+});
+
+describe('#setOptions()', function() {
+  it('should be chainable', function() {
+    treeize.setOptions({ input: { uniformRows: false }}).should.be.type('object');
+    treeize.setOptions({ input: { uniformRows: true }}).should.have.property('grow');
+  });
+
   describe('input.delimiter', function() {
     it('should allow custom delimiters', function() {
       var tree = new Treeize();
@@ -194,7 +242,63 @@ describe('OPTIONS', function() {
   });
 });
 
-describe('grow()', function() {
+describe('#setSignature()', function() {
+  it('should be chainable', function() {
+    treeize.setSignature([]).should.be.type('object');
+    treeize.setSignature([]).should.have.property('grow');
+  });
+
+  it('should force signature from a defined row', function() {
+    var fields = new Treeize();
+    fields
+      .setSignature(welldata1[3])
+      .grow(welldata1)
+    ;
+
+    fields.getData().should.eql([
+      { code: 'RA',
+        wells:
+         [ { uwi: 'RA-001',
+             reservoirs: [ { code: 'LB' } ],
+             log: [ { date: '12/13/2014', wc: 0.5 } ] },
+           { uwi: 'RA-002', log: [ { date: '12/12/2014' } ] } ],
+        reservoirs: [ { code: 'LB' } ] },
+      { code: 'SA',
+        wells:
+         [ { uwi: 'SA-032',
+             log: [ { date: '12/12/2014' } ],
+             reservoirs: [ { code: 'MA' } ] } ],
+        reservoirs: [ { code: 'MA' } ] }
+    ]);
+  });
+
+  it('should persist between data sets when called manually', function() {
+    var fields = new Treeize();
+    fields
+      .setSignature(welldata1[3])
+      .grow(welldata1)
+      .grow(welldata2)
+    ;
+
+    fields.getData().should.eql([
+      { code: 'RA',
+        wells:
+         [ { uwi: 'RA-001',
+             reservoirs: [ { code: 'LB' } ],
+             log: [ { date: '12/13/2014', wc: 0.5 } ] },
+           { uwi: 'RA-002',
+             log: [ { date: '12/12/2014' } ],
+             reservoirs: [ { code: 'UB' } ] } ],
+        reservoirs: [ { code: 'LB' }, { code: 'UB' } ] },
+      { code: 'SA',
+        wells:
+         [ { uwi: 'SA-032',
+             log: [ { date: '12/12/2014' } ],
+             reservoirs: [ { code: 'MA' } ] } ],
+        reservoirs: [ { code: 'MA' } ] }
+    ]);
+  });
+
   describe('modifiers', function() {
     it('-/+/* modifiers should only be stripped from head/tail of paths', function() {
       var testPlusMinus = [
@@ -227,7 +331,7 @@ describe('grow()', function() {
       );
     });
 
-    it('* modifier should set signature attributes', function() {
+    it('* modifier should define specific signature attributes', function() {
       var tree = new Treeize();
 
       tree.grow([
@@ -263,6 +367,13 @@ describe('grow()', function() {
       ]);
     });
   });
+});
+
+describe('#grow()', function() {
+  it('should be chainable', function() {
+    treeize.grow().should.be.type('object');
+    treeize.grow().should.have.property('grow');
+  });
 
   it('passing options should not change global options', function() {
     var tree = new Treeize();
@@ -284,13 +395,43 @@ describe('grow()', function() {
     ]).getData().should.have.length(3);
   });
 
+  it('should handle flat array data', function() {
+    var fields = new Treeize();
+    fields
+      .grow(arraywelldata)
+    ;
+
+    fields.getData().should.eql([
+      { code: 'RA',
+        wells:
+         [ { uwi: 'RA-001',
+             log:
+              [ { effluent: 5000, date: '12/12/2014' },
+                { effluent: 5050, date: '12/13/2014' },
+                { effluent: 6076, date: '12/14/2014' } ],
+             reservoirs: [ { code: 'LB' } ] },
+           { uwi: 'RA-002',
+             log: [ { effluent: 4500, date: '12/12/2014' } ],
+             reservoirs: [ { code: 'UB' } ] } ],
+        reservoirs: [ { code: 'LB' }, { code: 'UB' } ] },
+      { code: 'SA',
+        wells:
+         [ { uwi: 'SA-032',
+             log: [ { effluent: 2050, date: '12/12/2014' } ],
+             reservoirs: [ { code: 'MA' } ] },
+           { uwi: 'SA-031',
+             log: [ { effluent: 850, date: '12/11/2014' } ],
+             reservoirs: [ { code: 'MA' } ] } ],
+        reservoirs: [ { code: 'MA' } ] }
+    ]);
+  });
+
   it('should be able to merge multiple data sources/types together', function() {
     var fields = new Treeize();
     fields
       .setOptions({ input: { uniformRows: false } })
       .grow(welldata1)
       .grow(welldata2)
-      .clearSignature()
       .grow(arraywelldata)
     ;
 
