@@ -6,6 +6,36 @@ var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
 
 describe('OPTIONS', function() {
+  describe('input.delimiter', function() {
+    it('should allow custom delimiters', function() {
+      var tree = new Treeize();
+
+      tree.setOptions({ input: { delimiter: '|' }}).grow([
+        { 'foo': 'bar', 'logs|a': 1 },
+        { 'foo': 'bar', 'logs|a': 2 },
+        { 'foo': 'baz', 'logs|a': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
+        { foo: 'baz', logs: [{ a: 3 }]}
+      ]);
+    });
+  });
+
+  describe('input.detectCollections', function() {
+    it('should force plural nodes into collections when enabled', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'logs:a': 1 },
+        { 'foo': 'bar', 'logs:a': 2 },
+        { 'foo': 'baz', 'logs:a': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
+        { foo: 'baz', logs: [{ a: 3 }]}
+      ]);
+    });
+  });
+
   describe('input.uniformRows', function() {
     it('should use signature from first row when enabled (default)', function() {
       var fields = new Treeize();
@@ -165,6 +195,75 @@ describe('OPTIONS', function() {
 });
 
 describe('grow()', function() {
+  describe('modifiers', function() {
+    it('-/+/* modifiers should only be stripped from head/tail of paths', function() {
+      var testPlusMinus = [
+        {
+          'name': 'kevin',
+          'owned-pets:name': 'Fido',
+          'owned-pets:age': 12,
+          'a+b': 'why not?',
+          'log-ref+:date': '2014/1/1'
+        },
+        {
+          'name': 'kevin',
+          'owned-pets:name': 'Fido',
+          'owned-pets:age': 12,
+          'a+b': 'why not?',
+          'log-ref+:date': '2014/1/2'
+        },
+      ];
+
+      var tree = new Treeize();
+      tree = tree
+        .grow(testPlusMinus)
+        .getData()
+      ;
+
+      tree.should.eql([ { name: 'kevin',
+        'a+b': 'why not?',
+        'log-ref': [ { date: '2014/1/1' }, { date: '2014/1/2' } ],
+        'owned-pets': [ { name: 'Fido', age: 12 } ] } ]
+      );
+    });
+
+    it('* modifier should set signature attributes', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo*': 'bar', 'age': 1 },
+        { 'foo*': 'bar', 'age': 2 },
+        { 'foo*': 'baz', 'age': 3 },
+      ]).getData().should.have.length(2);
+    });
+
+    it('+ modifier should force collection', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'log+:a': 1 },
+        { 'foo': 'bar', 'log+:a': 2 },
+        { 'foo': 'baz', 'log+:a': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', log: [{ a: 1 }, { a: 2 }] },
+        { foo: 'baz', log: [{ a: 3 }]}
+      ]);
+    });
+
+    it('- modifier should force object (instead of collection) when plural name', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'logs-:a': 1 },
+        { 'foo': 'bar', 'logs-:a': 2 },
+        { 'foo': 'baz', 'logs-:a': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', logs: { a: 1 } },
+        { foo: 'baz', logs: { a: 3 } }
+      ]);
+    });
+  });
+
   it('passing options should not change global options', function() {
     var tree = new Treeize();
     tree.setOptions({ input: { delimiter: '&' } });
@@ -174,36 +273,6 @@ describe('grow()', function() {
     tree.getOptions().input.delimiter.should.equal('&');
   });
 
-  it('should only trim -/+/* from head/tail of paths', function() {
-    var testPlusMinus = [
-      {
-        'name': 'kevin',
-        'owned-pets:name': 'Fido',
-        'owned-pets:age': 12,
-        'a+b': 'why not?',
-        'log-ref+:date': '2014/1/1'
-      },
-      {
-        'name': 'kevin',
-        'owned-pets:name': 'Fido',
-        'owned-pets:age': 12,
-        'a+b': 'why not?',
-        'log-ref+:date': '2014/1/2'
-      },
-    ];
-
-    var tree = new Treeize();
-    tree = tree
-      .grow(testPlusMinus)
-      .getData()
-    ;
-
-    tree.should.eql([ { name: 'kevin',
-      'a+b': 'why not?',
-      'log-ref': [ { date: '2014/1/1' }, { date: '2014/1/2' } ],
-      'owned-pets': [ { name: 'Fido', age: 12 } ] } ]
-    );
-  });
 
   it('should create new entry for each unique node signature', function() {
     var tree = new Treeize();
@@ -213,16 +282,6 @@ describe('grow()', function() {
       { 'foo': 'bar', 'age': 2 },
       { 'foo': 'baz', 'age': 3 },
     ]).getData().should.have.length(3);
-  });
-
-  it('should allow for specific node blueprint definitions via the * modifier', function() {
-    var tree = new Treeize();
-
-    tree.grow([
-      { 'foo*': 'bar', 'age': 1 },
-      { 'foo*': 'bar', 'age': 2 },
-      { 'foo*': 'baz', 'age': 3 },
-    ]).getData().should.have.length(2);
   });
 
   it('should be able to merge multiple data sources/types together', function() {
