@@ -6,6 +6,58 @@ var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
 
 describe('OPTIONS', function() {
+  describe('input.uniformRows', function() {
+    it('should use signature from first row when enabled (default)', function() {
+      var fields = new Treeize();
+      fields
+        .grow(welldata1)
+      ;
+
+      fields.getData().should.eql([
+        { code: 'RA',
+          wells:
+           [ { uwi: 'RA-001',
+               log: [ { oilrate: 5000, date: '12/12/2014' }, { oilrate: 5050 } ],
+               reservoirs: [ { code: 'LB' } ] },
+             { uwi: 'RA-002', log: [ { oilrate: 4500 } ] } ],
+          reservoirs: [ { code: 'LB' } ] },
+        { code: 'SA',
+          wells:
+           [ { uwi: 'SA-032',
+               log: [ { oilrate: 2050 } ],
+               reservoirs: [ { code: 'MA' } ] } ],
+          reservoirs: [ { code: 'MA' } ] }
+      ]);
+    });
+
+    it('should create unique row signature for each row when disabled', function() {
+      var fields = new Treeize();
+      fields
+        .grow(welldata1, { input: { uniformRows: false }})
+      ;
+
+      fields.getData().should.eql([
+        { code: 'RA',
+          wells:
+           [ { uwi: 'RA-001',
+               log:
+                [ { oilrate: 5000, date: '12/12/2014' },
+                  { oilrate: 5050, date: '12/13/2014', wc: 0.5 } ],
+               reservoirs: [ { code: 'LB' } ] },
+             { uwi: 'RA-002',
+               reservoir: 'UB',
+               log: [ { oilrate: 4500, date: '12/12/2014' } ] } ],
+          reservoirs: [ { code: 'LB' } ] },
+        { code: 'SA',
+          wells:
+           [ { uwi: 'SA-032',
+               log: [ { oilrate: 2050, date: '12/12/2014' } ],
+               reservoirs: [ { code: 'MA' } ] } ],
+          reservoirs: [ { code: 'MA' } ] }
+      ]);
+    });
+  });
+
   describe('output.objectOverwrite', function() {
     it('should overwrite attribute/placeholder objects with real objects', function() {
       var testDataOverwrite = [
@@ -153,11 +205,30 @@ describe('grow()', function() {
     );
   });
 
+  it('should create new entry for each unique node signature', function() {
+    var tree = new Treeize();
+
+    tree.grow([
+      { 'foo': 'bar', 'age': 1 },
+      { 'foo': 'bar', 'age': 2 },
+      { 'foo': 'baz', 'age': 3 },
+    ]).getData().should.have.length(3);
+  });
+
+  it('should allow for specific node blueprint definitions via the * modifier', function() {
+    var tree = new Treeize();
+
+    tree.grow([
+      { 'foo*': 'bar', 'age': 1 },
+      { 'foo*': 'bar', 'age': 2 },
+      { 'foo*': 'baz', 'age': 3 },
+    ]).getData().should.have.length(2);
+  });
+
   it('should be able to merge multiple data sources/types together', function() {
     var fields = new Treeize();
     fields
       .setOptions({ input: { uniformRows: false } })
-      .setSignature(welldata1[3])
       .grow(welldata1)
       .grow(welldata2)
       .clearSignature()
