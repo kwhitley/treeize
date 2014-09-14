@@ -50,6 +50,6 @@
     "grunt-mocha-test": "~0.12.0"
   },
   "scripts": {
-    "test": "node_modules/.bin/grunt mocha"
+    "test": "node_modules/.bin/grunt test"
   }
 }
