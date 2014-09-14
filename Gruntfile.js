@@ -17,7 +17,7 @@ module.exports = function (grunt) {
       }
     },
     jshint: {
-      all: ["Gruntfile.js", "moment.js", "lang/**/*.js", "test/**/*.js"],
+      all: ["Gruntfile.js", "moment.js", "lang/**/*.js"],
       options: {
         "node"     : true,
         "browser"  : true,
@@ -49,7 +49,7 @@ module.exports = function (grunt) {
           'lib/treeize.js',
           'test/**/*.js'
         ],
-        tasks: ['nodeunit']
+        tasks: ['mochaTest']
       },
       jshint : {
         files : '<%= jshint.all %>',
@@ -66,5 +66,5 @@ module.exports = function (grunt) {
 
   // Default task.
   grunt.registerTask('test', ['mochaTest']);
-  grunt.registerTask('default', ['jshint', 'test', 'watch']);
+  grunt.registerTask('default', ['jshint', 'mochaTest', 'watch']);
 };
