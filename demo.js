@@ -5,44 +5,6 @@ var welldata1 = require('./test/data/welldata1');
 var welldata2 = require('./test/data/welldata2');
 var arraywelldata = require('./test/data/arraywelldata');
 
-var keywordsTest = [
-  {
-    "code*":                       "RA",
-    "reservoirs:code":            "UB",
-    "wells:uwi":                  "RA-002",
-    "wells:reservoirs:code":      "UB",
-    "keywords+":                  "baz"
-  },
-  {
-    "code*":                       "SA",
-    "reservoirs:code":            "MA",
-    "wells:uwi":                  "SA-032",
-    "wells:reservoirs:code":      "MA",
-    "wells:log:wc":               0.1,
-    "wells:log:date":             "12/12/2014",
-    "keywords+":                  "bar"
-  },
-  {
-    "code*":                       "SA",
-    "reservoirs:code":            "MA",
-    "wells:uwi":                  "SA-032",
-    "wells:reservoirs:code":      "MA",
-    "wells:log:wc":               0.2,
-    "wells:log:date":             "12/13/2014",
-    "keywords+":                  "foo"
-  }
-];
-
-var fields = new Treeize();
-fields
-  .setOptions({ log: true, input: { uniformRows: false }, output: { prune: true }})
-  .setSignature(welldata1[3])
-  .grow(welldata1)
-  .grow(welldata2)
-  .clearSignature()
-  .grow(arraywelldata)
-;
-
 // test node dependency
 
 var testNodeDependency = [

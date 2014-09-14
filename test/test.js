@@ -41,6 +41,43 @@ describe('OPTIONS', function() {
     });
   });
 
+  describe('output.prune', function() {
+    var pruneData = [
+      { 'name': null, 'age': 1 },
+      { 'name': 'Kevin', 'age': 12 },
+      { foo: null, bar: null }
+    ];
+
+    it('should prune empty nodes when enabled', function() {
+      var tree = new Treeize();
+      tree
+        .setOptions({ input: { uniformRows: false } })
+        .grow(pruneData)
+      ;
+
+      tree.getData().should.have.a.length(2);
+      tree.getData().should.eql([
+        { age: 1 },
+        { name: 'Kevin', age: 12 }
+      ]);
+    });
+
+    it('should leave empty nodes when disabled', function() {
+      var tree = new Treeize();
+      tree
+        .setOptions({ input: { uniformRows: false }, output: { prune: false } })
+        .grow(pruneData)
+      ;
+
+      tree.getData().should.have.a.length(3);
+      tree.getData().should.eql([
+        { name: null, age: 1 },
+        { name: 'Kevin', age: 12 },
+        { foo: null, bar: null }
+      ]);
+    });
+  });
+
   describe('output.resultsAsObject', function() {
     it('should create single root object instead of array results', function() {
       var testDataRootObject = [
