@@ -115,4 +115,43 @@ describe('grow()', function() {
       'owned-pets': [ { name: 'Fido', age: 12 } ] } ]
     );
   });
+
+  it('should be able to merge multiple data sources/types together', function() {
+    var fields = new Treeize();
+    fields
+      .setOptions({ input: { uniformRows: false } })
+      .setSignature(welldata1[3])
+      .grow(welldata1)
+      .grow(welldata2)
+      .clearSignature()
+      .grow(arraywelldata)
+    ;
+
+    fields.getData().should.eql([
+      { code: 'RA',
+        wells:
+         [ { uwi: 'RA-001',
+             log:
+              [ { oilrate: 5000, date: '12/12/2014', effluent: 5000 },
+                { oilrate: 5050, date: '12/13/2014', wc: 0.5, effluent: 5050 },
+                { effluent: 6076, date: '12/14/2014' } ],
+             reservoirs: [ { code: 'LB' } ] },
+           { uwi: 'RA-002',
+             reservoir: 'UB',
+             log: [ { oilrate: 4500, date: '12/12/2014', effluent: 4500 } ],
+             reservoirs: [ { code: 'UB' } ] } ],
+        reservoirs: [ { code: 'LB' }, { code: 'UB' } ]
+      },
+      { code: 'SA',
+        wells:
+         [ { uwi: 'SA-032',
+             log: [ { oilrate: 2050, date: '12/12/2014', effluent: 2050 } ],
+             reservoirs: [ { code: 'MA' } ] },
+           { uwi: 'SA-031',
+             log: [ { effluent: 850, date: '12/11/2014' } ],
+             reservoirs: [ { code: 'MA' } ] } ],
+        reservoirs: [ { code: 'MA' } ]
+      }
+    ]);
+  });
 });

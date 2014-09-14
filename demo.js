@@ -43,33 +43,6 @@ fields
   .grow(arraywelldata)
 ;
 
-// test object overwrite
-
-var testDataOverwrite = [
-  {
-    'name*': 'dog',
-    'fk':   1,
-    'pet': 'Fido'
-  },
-  {
-    'name': 'cat',
-    'fk:a': 'A',
-    'fk:b': 'B'
-  },
-  {
-    'name*': 'dog',
-    'fk:a': 'X',
-    'fk:b': 'Y',
-    'pet':  'Mittens'
-  },
-];
-
-var test1 = new Treeize();
-test1
-  .setOptions({ log: true, input: { uniformRows: false }, output: { objectOverwrite: true }})
-  .grow(testDataOverwrite)
-;
-
 // test node dependency
 
 var testNodeDependency = [
@@ -91,10 +64,8 @@ test4
 // console.log('BASE>', fields + '');
 // console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
 
-console.log('BASE>', test1 + '');
-console.log('STATS>', util.inspect(test1.stats, false, null), "\n\n");
+console.log('BASE>', fields + '');
+console.log('STATS>', util.inspect(fields.stats, false, null), "\n\n");
 
-console.log('BASE>', test4 + '');
-console.log('STATS>', util.inspect(test4.stats, false, null), "\n\n");
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
