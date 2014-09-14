@@ -6,13 +6,6 @@ var welldata1 = require('./data/welldata1');
 var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
 
-describe('#getOptions()', function() {
-  it('should return options', function() {
-    treeize.getOptions().log.should.be.false;
-    treeize.getOptions().input.delimiter.should.equal(':');
-  });
-});
-
 describe('#getStats()', function() {
   var tree = new Treeize();
   var stats = tree.grow([
@@ -34,19 +27,14 @@ describe('#getStats()', function() {
   });
 });
 
-describe('#resetOptions()', function() {
-  it('should be chainable', function() {
-    treeize.resetOptions().should.be.type('object');
-    treeize.resetOptions().should.have.property('grow');
-  });
 
-  it('should reset base options', function() {
-    treeize.setOptions({ log: true });
-    treeize.getOptions().log.should.be.true;
-    treeize.resetOptions();
+describe('#getOptions()', function() {
+  it('should return options', function() {
     treeize.getOptions().log.should.be.false;
+    treeize.getOptions().input.delimiter.should.equal(':');
   });
 });
+
 
 describe('#setOptions()', function() {
   it('should be chainable', function() {
@@ -63,6 +51,19 @@ describe('#setOptions()', function() {
         { 'foo': 'bar', 'logs|a': 2 },
         { 'foo': 'baz', 'logs|a': 3 },
       ]).getData().should.eql([
+        { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
+        { foo: 'baz', logs: [{ a: 3 }]}
+      ]);
+    });
+
+    it('should be able to be set from grow() options', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'logs|a': 1 },
+        { 'foo': 'bar', 'logs|a': 2 },
+        { 'foo': 'baz', 'logs|a': 3 },
+      ], { input: { delimiter: '|' }}).getData().should.eql([
         { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
         { foo: 'baz', logs: [{ a: 3 }]}
       ]);
@@ -242,6 +243,22 @@ describe('#setOptions()', function() {
   });
 });
 
+
+describe('#resetOptions()', function() {
+  it('should be chainable', function() {
+    treeize.resetOptions().should.be.type('object');
+    treeize.resetOptions().should.have.property('grow');
+  });
+
+  it('should reset base options', function() {
+    treeize.setOptions({ log: true });
+    treeize.getOptions().log.should.be.true;
+    treeize.resetOptions();
+    treeize.getOptions().log.should.be.false;
+  });
+});
+
+
 describe('#setSignature()', function() {
   it('should be chainable', function() {
     treeize.setSignature([]).should.be.type('object');
@@ -369,10 +386,30 @@ describe('#setSignature()', function() {
   });
 });
 
+
 describe('#grow()', function() {
   it('should be chainable', function() {
     treeize.grow().should.be.type('object');
     treeize.grow().should.have.property('grow');
+  });
+
+  it('passing options should not change global options (including input options)', function() {
+    var pruneData = [
+      { 'name': null, 'age': 1 },
+      { 'name': 'Kevin', 'age': 12 },
+      { foo: null, bar: null }
+    ];
+
+    var tree = new Treeize();
+    tree
+      .grow(pruneData, { input: { uniformRows: false }, output: { prune: false } })
+      .getData()
+      .should.eql([
+        { name: null, age: 1 },
+        { name: 'Kevin', age: 12 },
+        { foo: null, bar: null }
+      ])
+    ;
   });
 
   it('passing options should not change global options', function() {
@@ -384,6 +421,14 @@ describe('#grow()', function() {
     tree.getOptions().input.delimiter.should.equal('&');
   });
 
+  it('passing options for signature reading should work', function() {
+    var tree = new Treeize();
+    tree.setOptions({ input: { delimiter: '&' } });
+    tree.getOptions().input.delimiter.should.equal('&');
+
+    tree.grow([], { input: { delimiter: '>' } });
+    tree.getOptions().input.delimiter.should.equal('&');
+  });
 
   it('should create new entry for each unique node signature', function() {
     var tree = new Treeize();
