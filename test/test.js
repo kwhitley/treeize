@@ -292,6 +292,22 @@ describe('#setSignature()', function() {
     ]);
   });
 
+  it('should work with array data', function() {
+    var fields = new Treeize();
+    fields
+      .setSignature(['id','name:first','age'])
+      .grow([
+        [1, 'kevin', 34],
+        [2, 'jimbo', 33],
+      ])
+    ;
+
+    fields.getData().should.eql([
+      { id: 1, name: { first: 'kevin' }, age: 34 },
+      { id: 2, name: { first: 'jimbo' }, age: 33 }
+    ]);
+  });
+
   it('should persist between data sets when called manually', function() {
     var fields = new Treeize();
     fields
