@@ -86,36 +86,10 @@ describe('#setOptions()', function() {
   });
 
   describe('input.uniformRows', function() {
-    it('should use signature from first row when enabled (default)', function() {
+    it('should create unique row signature for each row when disabled (default)', function() {
       var fields = new Treeize();
       fields
         .grow(welldata1)
-      ;
-
-      fields.getData().should.eql([
-        { code: 'RA',
-          wells:
-           [ { uwi: 'RA-001',
-               log:
-                [ { oilrate: 5000, date: '12/12/2014' },
-                  { oilrate: 5050, date: '12/13/2014' } ],
-               reservoirs: [ { code: 'LB' } ] },
-             { uwi: 'RA-002',
-               log: [ { oilrate: 4500, date: '12/12/2014' } ] } ],
-          reservoirs: [ { code: 'LB' } ] },
-        { code: 'SA',
-          wells:
-           [ { uwi: 'SA-032',
-               log: [ { oilrate: 2050, date: '12/12/2014' } ],
-               reservoirs: [ { code: 'MA' } ] } ],
-          reservoirs: [ { code: 'MA' } ] }
-      ]);
-    });
-
-    it('should create unique row signature for each row when disabled', function() {
-      var fields = new Treeize();
-      fields
-        .grow(welldata1, { input: { uniformRows: false }})
       ;
 
       fields.getData().should.eql([
@@ -128,6 +102,32 @@ describe('#setOptions()', function() {
                reservoirs: [ { code: 'LB' } ] },
              { uwi: 'RA-002',
                reservoir: 'UB',
+               log: [ { oilrate: 4500, date: '12/12/2014' } ] } ],
+          reservoirs: [ { code: 'LB' } ] },
+        { code: 'SA',
+          wells:
+           [ { uwi: 'SA-032',
+               log: [ { oilrate: 2050, date: '12/12/2014' } ],
+               reservoirs: [ { code: 'MA' } ] } ],
+          reservoirs: [ { code: 'MA' } ] }
+      ]);
+    });
+
+    it('should use signature from first row when enabled', function() {
+      var fields = new Treeize();
+      fields
+        .grow(welldata1, { input: { uniformRows: true }})
+      ;
+
+      fields.getData().should.eql([
+        { code: 'RA',
+          wells:
+           [ { uwi: 'RA-001',
+               log:
+                [ { oilrate: 5000, date: '12/12/2014' },
+                  { oilrate: 5050, date: '12/13/2014' } ],
+               reservoirs: [ { code: 'LB' } ] },
+             { uwi: 'RA-002',
                log: [ { oilrate: 4500, date: '12/12/2014' } ] } ],
           reservoirs: [ { code: 'LB' } ] },
         { code: 'SA',
@@ -510,6 +510,33 @@ describe('#grow()', function() {
              log: [ { effluent: 850, date: '12/11/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
+    ]);
+  });
+
+  it('should handle deep object paths without existing definition', function() {
+    var tree = new Treeize();
+
+    tree.grow([
+      {
+        'id':1,
+        'user:a:b:c:d:e': 'kevin',
+        'user:age': 34
+      },
+      {
+        'id':1,
+        'user:a:b:c:def:e': 'jimbo',
+        'user:age': 34
+      },
+      {
+        'id':1,
+        'user:a:b:c:d:efg': 'kelly',
+        'user:age': 34
+      }
+    ]).getData().should.eql([
+      { id: 1,
+        user:
+         { age: 34,
+           a: { b: { c: { d: { e: 'kevin', efg: 'kelly' }, def: { e: 'jimbo' } } } } } }
     ]);
   });
 });
