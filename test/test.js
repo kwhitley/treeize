@@ -384,7 +384,7 @@ describe('#setSignature()', function() {
         { 'foo': 'bar', 'logs-:a': 2 },
         { 'foo': 'baz', 'logs-:a': 3 },
       ]).getData().should.eql([
-        { foo: 'bar', logs: { a: 1 } },
+        { foo: 'bar', logs: { a: 2 } },
         { foo: 'baz', logs: { a: 3 } }
       ]);
     });
