@@ -96,14 +96,17 @@ describe('#setOptions()', function() {
         { code: 'RA',
           wells:
            [ { uwi: 'RA-001',
-               log: [ { oilrate: 5000, date: '12/12/2014' }, { oilrate: 5050 } ],
+               log:
+                [ { oilrate: 5000, date: '12/12/2014' },
+                  { oilrate: 5050, date: '12/13/2014' } ],
                reservoirs: [ { code: 'LB' } ] },
-             { uwi: 'RA-002', log: [ { oilrate: 4500 } ] } ],
+             { uwi: 'RA-002',
+               log: [ { oilrate: 4500, date: '12/12/2014' } ] } ],
           reservoirs: [ { code: 'LB' } ] },
         { code: 'SA',
           wells:
            [ { uwi: 'SA-032',
-               log: [ { oilrate: 2050 } ],
+               log: [ { oilrate: 2050, date: '12/12/2014' } ],
                reservoirs: [ { code: 'MA' } ] } ],
           reservoirs: [ { code: 'MA' } ] }
       ]);
@@ -276,8 +279,8 @@ describe('#setSignature()', function() {
       { code: 'RA',
         wells:
          [ { uwi: 'RA-001',
-             reservoirs: [ { code: 'LB' } ],
-             log: [ { date: '12/13/2014', wc: 0.5 } ] },
+             log: [ { date: '12/12/2014' }, { date: '12/13/2014', wc: 0.5 } ],
+             reservoirs: [ { code: 'LB' } ] },
            { uwi: 'RA-002', log: [ { date: '12/12/2014' } ] } ],
         reservoirs: [ { code: 'LB' } ] },
       { code: 'SA',
@@ -301,8 +304,8 @@ describe('#setSignature()', function() {
       { code: 'RA',
         wells:
          [ { uwi: 'RA-001',
-             reservoirs: [ { code: 'LB' } ],
-             log: [ { date: '12/13/2014', wc: 0.5 } ] },
+             log: [ { date: '12/12/2014' }, { date: '12/13/2014', wc: 0.5 } ],
+             reservoirs: [ { code: 'LB' } ] },
            { uwi: 'RA-002',
              log: [ { date: '12/12/2014' } ],
              reservoirs: [ { code: 'UB' } ] } ],
@@ -310,7 +313,9 @@ describe('#setSignature()', function() {
       { code: 'SA',
         wells:
          [ { uwi: 'SA-032',
-             log: [ { date: '12/12/2014' } ],
+             log:
+              [ { date: '12/12/2014', wc: 0.1 },
+                { wc: 0.2, date: '12/13/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
     ]);
@@ -493,18 +498,18 @@ describe('#grow()', function() {
              reservoir: 'UB',
              log: [ { oilrate: 4500, date: '12/12/2014', effluent: 4500 } ],
              reservoirs: [ { code: 'UB' } ] } ],
-        reservoirs: [ { code: 'LB' }, { code: 'UB' } ]
-      },
+        reservoirs: [ { code: 'LB' }, { code: 'UB' } ] },
       { code: 'SA',
         wells:
          [ { uwi: 'SA-032',
-             log: [ { oilrate: 2050, date: '12/12/2014', effluent: 2050 } ],
+             log:
+              [ { oilrate: 2050, date: '12/12/2014', wc: 0.1, effluent: 2050 },
+                { wc: 0.2, date: '12/13/2014' } ],
              reservoirs: [ { code: 'MA' } ] },
            { uwi: 'SA-031',
              log: [ { effluent: 850, date: '12/11/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
-        reservoirs: [ { code: 'MA' } ]
-      }
+        reservoirs: [ { code: 'MA' } ] }
     ]);
   });
 });
