@@ -5,6 +5,7 @@ var should  = require('should');
 var welldata1 = require('./data/welldata1');
 var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
+var arraywelldataNoHeaders = require('./data/arraywelldata-no-headers');
 
 describe('#getStats()', function() {
   var tree = new Treeize();
@@ -392,6 +393,19 @@ describe('#setSignature()', function() {
       ]);
     });
 
+    it('+ modifier should work on deep nodes', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'log+:a:b': 1 },
+        { 'foo': 'bar', 'log+:a:b': 2 },
+        { 'foo': 'baz', 'log+:a:b': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', log: [{ a: { b: 1 } }, { a: { b: 2 } }] },
+        { foo: 'baz', log: [{ a: { b: 3 } }]}
+      ]);
+    });
+
     it('- modifier should force object (instead of collection) when plural name', function() {
       var tree = new Treeize();
 
@@ -402,6 +416,19 @@ describe('#setSignature()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: { a: 2 } },
         { foo: 'baz', logs: { a: 3 } }
+      ]);
+    });
+
+    it('- modifier should work on deep nodes', function() {
+      var tree = new Treeize();
+
+      tree.grow([
+        { 'foo': 'bar', 'logs-:a:b': 1 },
+        { 'foo': 'bar', 'logs-:a:b': 2 },
+        { 'foo': 'baz', 'logs-:a:b': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', logs: { a: { b: 2 } } },
+        { foo: 'baz', logs: { a: { b: 3 } } }
       ]);
     });
   });
