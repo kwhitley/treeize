@@ -67,36 +67,35 @@ var options = {
   charset: "win1250"
 };
 
-CSV.parse(__dirname + '/test/data/mooc2.csv', options, function (err, row, next) {
-  if (err) {
-    return console.log(err);
-  }
+// CSV.parse(__dirname + '/test/data/mooc2.csv', options, function (err, row, next) {
+//   if (err) {
+//     return console.log(err);
+//   }
 
-  if (row) {
-    data.push(row);
-    return next();
-  }
+//   if (row) {
+//     data.push(row);
+//     return next();
+//   }
 
-  if (!row) {
-    var universities = new Treeize();
-    universities
-      // .setOptions({ log: true })
-      .grow(data)
-    ;
+//   if (!row) {
+//     var universities = new Treeize();
+//     universities
+//       // .setOptions({ log: true })
+//       .grow(data)
+//     ;
 
-    console.log('BASE>', universities + '');
-    console.log('STATS>', util.inspect(universities.stats, false, null), "\n\n");
-  }
-});
+//     console.log('BASE>', universities + '');
+//     console.log('STATS>', util.inspect(universities.stats, false, null), "\n\n");
+//   }
+// });
 
 
 var tree = new Treeize();
 
-// tree.setOptions({ log: true }).grow([
-//   { 'foo': 'bar', 'logs:a:b': 1 },
-//   { 'foo': 'bar', 'logs:a:b': 2 },
-//   { 'foo': 'baz', 'logs:a:b': 3 },
-// ]);
+tree.setOptions({ log: true }).grow([
+  { 'foo:name': 'bar', 'foo:age': 1 },
+  { 'foo:name': 'baz', 'foo:age': 3 },
+]);
 
 // var tree = new Treeize();
 
@@ -118,8 +117,8 @@ var tree = new Treeize();
 //   { 'foo': 'baz', 'logs:a': 3 },
 // ]);
 
-// console.log('BASE>', tree + '');
-// console.log('STATS>', util.inspect(tree.stats, false, null), "\n\n");
+console.log('BASE>', tree + '');
+console.log('STATS>', util.inspect(tree.stats, false, null), "\n\n");
 
 // console.log('KEYWORDS>', keywords + '');
 // console.log('STATS>', util.inspect(keywords.stats, false, null));
