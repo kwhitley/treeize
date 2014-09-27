@@ -4,14 +4,9 @@
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
-##Why?
+## Why?
 
-Because APIs usually require data in a deep object graph/collection form, but
-SQL results, excel, csv, and other flat data sources that we're often forced to drive
-our applications from represent data in a very "flat" way.  Treeize takes this
-flattened data and based on simple column/attribute naming conventions, remaps
-it into a deep object graph - all without the overhead/hassle of a traditional
-ORM.
+Because APIs usually require data in a deep object graph/collection form, but SQL results, excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of a traditional ORM.
 
 ## Installation
 
@@ -48,7 +43,7 @@ console.log(tree + '');
 
 ```
 
-## Path Naming
+#### Path Naming
 
 Each column/attribute of each row will dictate its own destination path
 using the following format:
@@ -59,22 +54,13 @@ using the following format:
 }
 ```
 
-Each "path" (up to n-levels deep) is optional and represents a single object
-node if the word is singular, or a collection if the word is plural (with
-optional +/- override modifiers).  For example, a
-"favoriteMovie:name" path will add a "favoriteMovie" object to its path -
-where "favoriteMovies:name" would add a collection of movies (complete with
-a first entry) instead.  For root nodes, include only the attribute name
-without any preceding paths.  If you were creating a final output of a
-book collection for instance, the title of the book would likely be pathless
-as you would want the value on the high-level collection `book` object.
+Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level collection `book` object.
 
-It's important to note that each row will create or find its path within the newly
-transformed output being created.  Your flat feed may have mass-duplication, but
-the results will not.
+It's important to note that each row will create or find its path within the newly transformed output being created.  Your flat feed may have mass-duplication, but the results will not.
 
+---
 
-## Documentation
+## API Index
 
 ##### 1. get/set options (optional)
 
@@ -86,7 +72,7 @@ the results will not.
 
 - [`.signature([row], [options])`](#signature) - getter/setter for signature definitions
 - [`.setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
-- [`.clearSignature([row], [options])`](#clearSignature) - clear signature (only needed when manually defining signatures via `setSignature`)
+- [`.clearSignature([row], [options])`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
 
 ##### 2b. grow tree from data set(s)
 
@@ -105,28 +91,54 @@ the results will not.
 
 ---
 
-<a name="options" />
-<a name="setOptions" />
-### .setOptions([options])
+# API
+
+### .setOptions([options])<a name="options" /><a name="setOptions" />
 
 Sets options globally for the Treeize instance.  Default options are as follows:
 
 ```js
 {
   input: {
-    delimiter:          ':',
-    detectCollections:  true,
-    uniformRows:        false,
+    delimiter:          ':',    // delimiter between path segments, defaults to ':'
+    detectCollections:  true,   // when true, plural path segments become collections
+    uniformRows:        false,  // set to true if each row has identical signatures
   },
   output: {
-    prune:              true,
-    objectOverwrite:    true,
-    resultsAsObject:    false,
+    prune:              true,   // remove blank/null values and empty nodes
+    objectOverwrite:    true,   // incoming objects will overwrite placeholder ids
+    resultsAsObject:    false,  // root structure defaults to array (instead of object)
   },
-  log:                  false,
+  log:                  false,  // enable logging
 }
-
 ```
+
+For example, to change the delimiter and enable output logging, you would use the following:
+
+```js
+.setOptions({ log: true, input: { delimiter: '|' }});
+```
+
+#### Options
+
+`input.delimiter`
+This sets the delimiter to be used between path segments (e.g. the ":" in "children:mother:name").
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L48-59)
+
+`input.detectCollections`
+Enables/disables the default behavior of turning plural path segments (e.g. "subjects" vs. "subject") into collections instead of object paths.  **Note:** In order to properly merge multiple rows into the same collection item, the collection must have a base-level attribute(s) acting as a signature.
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L76-100)
+
+`input.uniformRows`
+By default row uniformity is disabled to allow the most flexible data merging.  This means each and every row of data that is processed (unless flat array-of-array data) will be analyzed and mapped individually into the final structure.  If your data rows have uniform attributes/columns, disable this for a performance increase.
+
+`output.prune`
+Removes blank/empty nodes in the structure.  This is enabled by default to prevent sparse data sets from injecting blanks and nulls everywhere in your final output.  If nulls are important to preserve, disable this.
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L207-240)
+
+`output.objectOverwrite`
+To allow for merging objects directly onto existing placeholder values (e.g. foreign key ids), this is enabled by default.
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L159-203)
 
 Applies the function `iterator` to each item in `arr`, in parallel.
 The `iterator` is called with an item from the list, and a callback for when it
