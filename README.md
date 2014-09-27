@@ -119,7 +119,7 @@ For example, to change the delimiter and enable output logging, you would use th
 .setOptions({ log: true, input: { delimiter: '|' }});
 ```
 
-#### Options
+#### Available Options
 
 `input.delimiter`
 This sets the delimiter to be used between path segments (e.g. the ":" in "children:mother:name").
@@ -143,6 +143,12 @@ To allow for merging objects directly onto existing placeholder values (e.g. for
 `output.resultsAsObject`
 This creates a single root object (instead of the default array of objects).
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L245-278)
+
+`log`
+Setting to true enables traversal information to be logged to console during growth process.
+
+
+
 
 Applies the function `iterator` to each item in `arr`, in parallel.
 The `iterator` is called with an item from the list, and a callback for when it
