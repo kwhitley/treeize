@@ -255,9 +255,12 @@ describe('#resetOptions()', function() {
   });
 
   it('should reset base options', function() {
+    var baseOptions = treeize.getOptions();
     treeize.setOptions({ log: true });
+    treeize.getOptions().should.not.eql(baseOptions);
     treeize.getOptions().log.should.be.true;
     treeize.resetOptions();
+    treeize.getOptions().should.eql(baseOptions);
     treeize.getOptions().log.should.be.false;
   });
 });
@@ -580,6 +583,18 @@ describe('#grow()', function() {
         user:
          { age: 34,
            a: { b: { c: { d: { e: 'kevin', efg: 'kelly' }, def: { e: 'jimbo' } } } } } }
+    ]);
+  });
+
+  it('should handle signature-less root node insertion', function() {
+    var tree = new Treeize();
+
+    tree.grow([
+      { 'foo:name': 'bar', 'foo:age': 1 },
+      { 'foo:name': 'baz', 'foo:age': 3 },
+    ]).getData().should.eql([
+      { foo: { name: 'bar', age: 1 } },
+      { foo: { name: 'baz', age: 3 } }
     ]);
   });
 });
