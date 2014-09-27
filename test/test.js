@@ -178,7 +178,6 @@ describe('#setOptions()', function() {
     it('should overwrite attribute/placeholder objects with real objects when enabled', function() {
       var tree = new Treeize();
       tree = tree
-        .setOptions({ output: { objectOverwrite: true }})
         .grow(testDataOverwrite)
         .getData()
       ;
