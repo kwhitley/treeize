@@ -64,30 +64,30 @@ It's important to note that each row will create or find its path within the new
 
 ##### 1. get/set options (optional)
 
-- [`.options([options])`](#options) - getter/setter for options
-- [`.setOptions(options)`](#setOptions) - merges new `[options]` with existing
-- [`.resetOptions()`](#resetOptions) - resets options to defaults
+- [`options([options])`](#options) - getter/setter for options
+- [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
+- [`resetOptions()`](#resetOptions) - resets options to defaults
 
 ##### 2a. set data signature manually if needed (optional)
 
-- [`.signature([row], [options])`](#signature) - getter/setter for signature definitions
-- [`.setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
-- [`.clearSignature([row], [options])`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
+- [`signature([row], [options])`](#signature) - getter/setter for signature definitions
+- [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
+- [`clearSignature([row], [options])`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
 
 ##### 2b. grow tree from data set(s)
 
-- [`.grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
+- [`grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
 
 ##### 3. retrieve transformed data
 
-- [`.getData()`](#getData) - gets current tree data
+- [`getData()`](#getData) - gets current tree data
 
 ##### * misc/internal methods
 
-- [`.getOptions()`](#getOptions) - returns options
-- [`.getSignature()`](#getSignature) - returns currently defined signature
-- [`.getStats()`](#getStats) - returns object with growth statistics
-- [`.toString()`](#toString) - uses `util` to return data in visually formatted object graph
+- [`getOptions()`](#getOptions) - returns options
+- [`getSignature()`](#getSignature) - returns currently defined signature
+- [`getStats()`](#getStats) - returns object with growth statistics
+- [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
 
 ---
 
@@ -123,11 +123,11 @@ For example, to change the delimiter and enable output logging, you would use th
 
 `input.delimiter`
 This sets the delimiter to be used between path segments (e.g. the ":" in "children:mother:name").
-[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L48-59)
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L51-58)
 
 `input.detectCollections`
 Enables/disables the default behavior of turning plural path segments (e.g. "subjects" vs. "subject") into collections instead of object paths.  **Note:** In order to properly merge multiple rows into the same collection item, the collection must have a base-level attribute(s) acting as a signature.
-[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L76-100)
+[View test example (enabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L79-86) | [or (disabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L92-99)
 
 `input.uniformRows`
 By default row uniformity is disabled to allow the most flexible data merging.  This means each and every row of data that is processed (unless flat array-of-array data) will be analyzed and mapped individually into the final structure.  If your data rows have uniform attributes/columns, disable this for a performance increase.
@@ -139,6 +139,10 @@ Removes blank/empty nodes in the structure.  This is enabled by default to preve
 `output.objectOverwrite`
 To allow for merging objects directly onto existing placeholder values (e.g. foreign key ids), this is enabled by default.
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L159-203)
+
+`output.resultsAsObject`
+This creates a single root object (instead of the default array of objects).
+[View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L245-278)
 
 Applies the function `iterator` to each item in `arr`, in parallel.
 The `iterator` is called with an item from the list, and a callback for when it

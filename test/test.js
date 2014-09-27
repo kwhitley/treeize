@@ -267,9 +267,15 @@ describe('#setOptions()', function() {
         .getData()
       ;
 
-      tree.should.be.type('object');
-      tree.should.have.keys('name', 'pet', 'age', 'comments');
-      tree.comments.should.have.a.lengthOf(2);
+      tree.should.eql({
+        name: 'kevin',
+        pet: 'Fido',
+        age: 34,
+        comments: [
+          { comment: 'I miss you', date: '2014/09/10' },
+          { comment: 'I really miss you', date: '2014/09/11' }
+        ]
+      });
     });
   });
 });
