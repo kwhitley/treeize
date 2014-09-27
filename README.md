@@ -1,18 +1,17 @@
 # Treeize v2.0.0
 
-[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=master)](https://travis-ci.org/kwhitley/treeize)
+[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=feature%2Fmulti-format)](https://travis-ci.org/kwhitley/treeize)
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
-##What does it do?
+##Why?
 
-Treeize converts flat associative (e.g. results from SQL) or truly flat
-array-of-arrays data (e.g. excel, csv with or without a header row), into deep
-API-usable object graphs using simple column/attribute naming conventions.  This
-allows deep faux-hydrated results without requiring the complexity or overhead/slowdown
-of a traditional ORM hydration process (no models to instantiate with Treeize)
-
-Now you can.
+Because APIs usually require data in a deep object graph/collection form, but
+SQL results, excel, csv, and other flat data sources that we're often forced to drive
+our applications from represent data in a very "flat" way.  Treeize takes this
+flattened data and based on simple column/attribute naming conventions, remaps
+it into a deep object graph - all without the overhead/hassle of a traditional
+ORM.
 
 ## Installation
 
@@ -24,7 +23,7 @@ npm install treeize
 
 ```js
 
-var Treeize     = require('treeize');
+var Treeize = require('treeize');
 
 // data sources may be arrays of flat associative (key/value)
 // objects or flat array of array data (usually with header row
@@ -79,30 +78,78 @@ the results will not.
 
 ##### 1. get/set options (optional)
 
-- [`options([options])`](#options) - getter/setter for options
-- [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
-- [`resetOptions()`](#resetOptions) - resets options to defaults
+- [`.options([options])`](#options) - getter/setter for options
+- [`.setOptions(options)`](#setOptions) - merges new `[options]` with existing
+- [`.resetOptions()`](#resetOptions) - resets options to defaults
 
 ##### 2a. set data signature manually if needed (optional)
 
-- [`signature([row], [options])`](#signature) - getter/setter for signature definitions
-- [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
-- [`clearSignature([row], [options])`](#clearSignature) - clear signature (only needed when manually defining signatures via `setSignature`)
+- [`.signature([row], [options])`](#signature) - getter/setter for signature definitions
+- [`.setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
+- [`.clearSignature([row], [options])`](#clearSignature) - clear signature (only needed when manually defining signatures via `setSignature`)
 
 ##### 2b. grow tree from data set(s)
 
-- [`grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
+- [`.grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
 
 ##### 3. retrieve transformed data
 
-- [`getData()`](#getData) - gets current tree data
+- [`.getData()`](#getData) - gets current tree data
 
 ##### * misc/internal methods
 
-- [`getOptions()`](#getOptions) - returns options
-- [`getSignature()`](#getSignature) - returns currently defined signature
-- [`getStats()`](#getStats) - returns object with growth statistics
-- [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
+- [`.getOptions()`](#getOptions) - returns options
+- [`.getSignature()`](#getSignature) - returns currently defined signature
+- [`.getStats()`](#getStats) - returns object with growth statistics
+- [`.toString()`](#toString) - uses `util` to return data in visually formatted object graph
+
+---
+
+<a name="options" />
+<a name="setOptions" />
+### .setOptions([options])
+
+Sets options globally for the Treeize instance.  Default options are as follows:
+
+```js
+{
+  input: {
+    delimiter:          ':',
+    detectCollections:  true,
+    uniformRows:        false,
+  },
+  output: {
+    prune:              true,
+    objectOverwrite:    true,
+    resultsAsObject:    false,
+  },
+  log:                  false,
+}
+
+```
+
+Applies the function `iterator` to each item in `arr`, in parallel.
+The `iterator` is called with an item from the list, and a callback for when it
+has finished. If the `iterator` passes an error to its `callback`, the main
+`callback` (for the `each` function) is immediately called with the error.
+
+Note, that since this function applies `iterator` to each item in parallel,
+there is no guarantee that the iterator functions will complete in order.
+
+__Arguments__
+
+* `arr` - An array to iterate over.
+* `iterator(item, callback)` - A function to apply to each item in `arr`.
+  The iterator is passed a `callback(err)` which must be called once it has
+  completed. If no error has occurred, the `callback` should be run without
+  arguments or with an explicit `null` argument.
+* `callback(err)` - A callback which is called when all `iterator` functions
+  have finished, or an error occurs.
+
+
+
+
+
 
 
 #### Configuration (first value is default)
