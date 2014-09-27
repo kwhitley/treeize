@@ -4,23 +4,13 @@
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
-##Why?
+##What does it do?
 
-Most of us still have our hands in traditional relational databases (e.g. MySQL).
-While the normalized tables do a fine job of representing the parent/child
-relationships, the joined SQL results do not.  In fact, they look more like an Excel
-spreadsheet than anything.  This presents us with a
-problem when trying to supply a nice deep object graph for applications.
-
-Using a traditional ORM is slow (either many fragmented SQL
-calls, slow object hydration of models, or both).  Beyond that, for a lightweight API,
-you don't want to have to first pick an ORM and then model out all your relationships. For complex queries, especially where results are
-filtered by multiple columns across multiple tables, it becomes even more troublesome,
-or borderline impossible to use these model helpers.
-
-The problem is, you can write the
-complex deeply joined SQL call that has all the results you wanted - but you can't get it back into
-an object graph so it looks/behaves like something other than data vomit.
+Treeize converts flat associative (e.g. results from SQL) or truly flat
+array-of-arrays data (e.g. excel, csv with or without a header row), into deep
+API-usable object graphs using simple column/attribute naming conventions.  This
+allows deep faux-hydrated results without requiring the complexity or overhead/slowdown
+of a traditional ORM hydration process (no models to instantiate with Treeize)
 
 Now you can.
 
@@ -43,21 +33,47 @@ var Treeize     = require('treeize');
 var dataSource1 = require('./data/source1.js');
 var dataSource2 = require('./data/source2.js');
 
-var myData  = new Treeize();
+var tree = new Treeize();
 
-myData
+tree
   .setOptions({ input: { delimiter: '|' } }) // default delimiter is ':'
   .grow(dataSource1)
   .grow(dataSource2)
 ;
 
 // get/print current deep data from Treeize instantiation
-console.log(myData.getData());
+console.log(tree.getData());
 
 // optional display of data using in built-in toString functions
-console.log(myData + '');
+console.log(tree + '');
 
 ```
+
+## Path Naming
+
+Each column/attribute of each row will dictate its own destination path
+using the following format:
+
+```js
+{
+  "[path1]:[path2]:[pathX]:[attributeName]": [value]
+}
+```
+
+Each "path" (up to n-levels deep) is optional and represents a single object
+node if the word is singular, or a collection if the word is plural (with
+optional +/- override modifiers).  For example, a
+"favoriteMovie:name" path will add a "favoriteMovie" object to its path -
+where "favoriteMovies:name" would add a collection of movies (complete with
+a first entry) instead.  For root nodes, include only the attribute name
+without any preceding paths.  If you were creating a final output of a
+book collection for instance, the title of the book would likely be pathless
+as you would want the value on the high-level collection `book` object.
+
+It's important to note that each row will create or find its path within the newly
+transformed output being created.  Your flat feed may have mass-duplication, but
+the results will not.
+
 
 ## Documentation
 
@@ -81,7 +97,7 @@ console.log(myData + '');
 
 - [`getData()`](#getData) - gets current tree data
 
-##### misc and internal
+##### * misc/internal methods
 
 - [`getOptions()`](#getOptions) - returns options
 - [`getSignature()`](#getSignature) - returns currently defined signature
@@ -113,28 +129,7 @@ treeize.options([options]); // universal getter/setter for options.  Returns sel
 }
 ```
 
-### Usage
 
-To use `treeize`, simply pass flat "row data" into `treeize.grow()`.  Each
-column/attribute of each row will dictate its own destination path using the following format:
-
-```js
-{
-  "[path1]:[path2]:[pathX]:[attributeName]": [value]
-}
-```
-
-Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular,
-or a collection if the word is plural.  For example, a "favoriteMovie:name" path will
-add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection
-of movies (complete with a first entry) instead.  For root nodes, include only
-the attribute name without any preceding paths.  If you were creating a final output of a
-book collection for instance, the title of the book would likely be pathless as you would want the
-value on the high-level collection `book` object.
-
-It's important to note that each row will create or find its path within the newly
-transformed output being created.  Your flat feed will have mass-duplication, the results
-will not.
 
 ##### How to manually override the default pluralization scheme for collection-detection
 
