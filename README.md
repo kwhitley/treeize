@@ -1,5 +1,6 @@
-treeize v2.0.0
-=======
+# Treeize v2.0.0
+
+[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=master)](https://travis-ci.org/kwhitley/treeize)
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
@@ -29,7 +30,58 @@ Now you can.
 npm install treeize
 ```
 
-## API
+## Quick Example
+
+```js
+
+var Treeize     = require('treeize');
+var dataSource1 = require('./data/source1.js');
+var dataSource2 = require('./data/source2.js');
+
+var myData  = new Treeize();
+
+myData
+  .setOptions({ input: { delimiter: '|' } }) // default delimiter is ':'
+  .grow(dataSource1)
+  .grow(dataSource2)
+;
+
+console.log(kittenData.getData());
+
+```
+
+## Documentation
+
+#### 1. get/set options (optional)
+
+- [`options([options])`](#options) - getter/setter for options
+- [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
+- [`resetOptions()`](#resetOptions) - resets options to defaults
+
+#### 2a. set data signature manually if needed (optional)
+
+- [`signature([row], [options])`](#signature) - getter/setter for signature definitions
+- [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
+- [`clearSignature([row], [options])`](#clearSignature) - clear signature (only needed when manually defining signatures via `setSignature`)
+
+#### 2b. grow tree from data set(s)
+
+- [`grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
+
+#### 3. retrieve transformed data
+
+- [`getData()`](#getData) - gets current tree data
+
+#### misc and internal
+
+- [`getOptions()`](#getOptions) - get current options
+- [`getSignature()`](#getSignature)
+- [`getStats()`](#getStats)
+- [`getData()`](#getData)
+- [`toString()`](#toString)
+
+
+
 
 - `treeize.grow(flatData, [options])` - takes your results/rows of flat associative data and returns a full object graph.
 
