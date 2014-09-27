@@ -35,6 +35,11 @@ npm install treeize
 ```js
 
 var Treeize     = require('treeize');
+
+// data sources may be arrays of flat associative (key/value)
+// objects or flat array of array data (usually with header row
+// as first row)
+
 var dataSource1 = require('./data/source1.js');
 var dataSource2 = require('./data/source2.js');
 
@@ -46,44 +51,43 @@ myData
   .grow(dataSource2)
 ;
 
-console.log(kittenData.getData());
+// get/print current deep data from Treeize instantiation
+console.log(myData.getData());
+
+// optional display of data using in built-in toString functions
+console.log(myData + '');
 
 ```
 
 ## Documentation
 
-#### 1. get/set options (optional)
+##### 1. get/set options (optional)
 
 - [`options([options])`](#options) - getter/setter for options
 - [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
 - [`resetOptions()`](#resetOptions) - resets options to defaults
 
-#### 2a. set data signature manually if needed (optional)
+##### 2a. set data signature manually if needed (optional)
 
 - [`signature([row], [options])`](#signature) - getter/setter for signature definitions
 - [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
 - [`clearSignature([row], [options])`](#clearSignature) - clear signature (only needed when manually defining signatures via `setSignature`)
 
-#### 2b. grow tree from data set(s)
+##### 2b. grow tree from data set(s)
 
 - [`grow(data, [options])`](#grow) - grow flat `data`, with optional local `[options]`
 
-#### 3. retrieve transformed data
+##### 3. retrieve transformed data
 
 - [`getData()`](#getData) - gets current tree data
 
-#### misc and internal
+##### misc and internal
 
-- [`getOptions()`](#getOptions) - get current options
-- [`getSignature()`](#getSignature)
-- [`getStats()`](#getStats)
-- [`getData()`](#getData)
-- [`toString()`](#toString)
+- [`getOptions()`](#getOptions) - returns options
+- [`getSignature()`](#getSignature) - returns currently defined signature
+- [`getStats()`](#getStats) - returns object with growth statistics
+- [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
 
-
-
-
-- `treeize.grow(flatData, [options])` - takes your results/rows of flat associative data and returns a full object graph.
 
 #### Configuration (first value is default)
 
