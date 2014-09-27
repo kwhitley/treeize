@@ -1,7 +1,7 @@
-treeize
+treeize v2.0.0
 =======
 
-Converts row data (in JSON/associative array format) to object/tree structure based on column naming conventions.
+Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
 ##Why?
 

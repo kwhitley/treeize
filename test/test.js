@@ -85,6 +85,19 @@ describe('#setOptions()', function() {
         { foo: 'baz', logs: [{ a: 3 }]}
       ]);
     });
+
+    it('should ignore plural nodes when disabled', function() {
+      var tree = new Treeize();
+
+      tree.setOptions({ input: { detectCollections: false } }).grow([
+        { 'foo': 'bar', 'logs:a': 1 },
+        { 'foo': 'bar', 'logs:a': 2 },
+        { 'foo': 'baz', 'logs:a': 3 },
+      ]).getData().should.eql([
+        { foo: 'bar', logs: { a: 2 } },
+        { foo: 'baz', logs: { a: 3 } },
+      ]);
+    });
   });
 
   describe('input.uniformRows', function() {
@@ -143,35 +156,49 @@ describe('#setOptions()', function() {
   });
 
   describe('output.objectOverwrite', function() {
-    it('should overwrite attribute/placeholder objects with real objects', function() {
-      var testDataOverwrite = [
-        {
-          'name*': 'dog',
-          'fk':   1,
-          'pet': 'Fido'
-        },
-        {
-          'name': 'cat',
-          'fk:a': 'A',
-          'fk:b': 'B'
-        },
-        {
-          'name*': 'dog',
-          'fk:a': 'X',
-          'fk:b': 'Y',
-          'pet':  'Mittens'
-        },
-      ];
+    var testDataOverwrite = [
+      {
+        'name*': 'dog',
+        'fk':   1,
+        'pet': 'Fido'
+      },
+      {
+        'name': 'cat',
+        'fk:a': 'A',
+        'fk:b': 'B'
+      },
+      {
+        'name*': 'dog',
+        'fk:a': 'X',
+        'fk:b': 'Y',
+        'pet':  'Mittens'
+      },
+    ];
 
+    it('should overwrite attribute/placeholder objects with real objects when enabled', function() {
       var tree = new Treeize();
       tree = tree
-        .setOptions({ input: { uniformRows: false }, output: { objectOverwrite: true }})
+        .setOptions({ output: { objectOverwrite: true }})
         .grow(testDataOverwrite)
         .getData()
       ;
 
       tree.should.eql([
         { name: 'dog', fk: { a: 'X', b: 'Y' }, pet: 'Mittens' },
+        { name: 'cat', fk: { a: 'A', b: 'B' } }
+      ]);
+    });
+
+    it('should not overwrite attribute/placeholder objects with real objects when disabled', function() {
+      var tree = new Treeize();
+      tree = tree
+        .setOptions({ log: true, output: { objectOverwrite: false }})
+        .grow(testDataOverwrite)
+        .getData()
+      ;
+
+      tree.should.eql([
+        { name: 'dog', fk: 1, pet: 'Mittens' },
         { name: 'cat', fk: { a: 'A', b: 'B' } }
       ]);
     });
