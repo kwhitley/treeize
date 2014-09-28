@@ -1,4 +1,4 @@
-# Treeize v2.0.0
+# Treeize.js
 
 [![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=feature%2Fmulti-format)](https://travis-ci.org/kwhitley/treeize)
 
@@ -72,7 +72,7 @@ It's important to note that each row will create or find its path within the new
 
 - [`signature([row], [options])`](#signature) - getter/setter for signature definitions
 - [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
-- [`clearSignature([row], [options])`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
+- [`clearSignature()`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
 
 ##### 2b. grow tree from data set(s)
 
@@ -93,9 +93,14 @@ It's important to note that each row will create or find its path within the new
 
 # API
 
-### .setOptions([options])<a name="options" /><a name="setOptions" />
+### .options([options])<a name="options" />
 
-Sets options globally for the Treeize instance.  Default options are as follows:
+[Getter](#getOptions)/[Setter](#setOptions) for options.  If options object is passed, this is identical to [.setOptions(options)](#setOptions) and returns self (chainable).  If no options are passed, this is identical to [.getOptions()](#getOptions) and returns current options as object.
+
+
+### .setOptions(options)<a name="setOptions" />
+
+Sets options globally for the Treeize instance.  This is an alias for `.options(options)`. Default options are as follows:
 
 ```js
 {
@@ -148,6 +153,71 @@ This creates a single root object (instead of the default array of objects).
 Setting to true enables traversal information to be logged to console during growth process.
 
 
+### .getOptions()<a name="getOptions" />
+
+Returns the current global options (as object).
+[View example format](#setOptions)
+
+
+### .resetOptions(options)<a name="resetOptions" />
+
+Resets all global options to [original defaults](#setOptions) and returns self (chainable).
+
+### .signature([row], [options])<a name="signature" />
+
+[Getter](#getSignature)/[Setter](#setSignature) for row signatures.  If options object is passed, this is identical to [.setSignature(options)](#setSignature) and returns self (chainable).  If no options are passed, this is identical to [.getSignature()](#getSignature) and returns currently defined signature as object.
+
+
+### .setSignature(row, [options])<a name="setSignature" />
+
+Manually defines the signature for upcoming data sets from argument `row`, with optional `options`.  The row may be either in object (key/value) form or flat array form (array of paths). This method is only required if sharing a single signature across multiple data sources (when merging homogeneous data sets), or when the data itself has no header information (for instance, with bulk flat array-of-values data).  Returns self (chainable).
+
+```js
+// May be set from a single row of associative data
+.setSignature({
+  'id': 1,
+  'name:first': 'Kevin',
+  'name:last': 'Whitley',
+  'hobbies:name': 'photography'
+  'hobbies:years': 12
+})
+
+// Or from header row of flat array data
+.setSignature(['id', 'name:first', 'name:last', 'hobbies:name', 'hobbies:years'])
+```
+
+### .getSignature()<a name="getSignature" />
+
+Returns currently defined signature. _For internal use only._
+
+### .clearSignature()<a name="clearSignature" />
+
+Clears currently-defined signature if previously set via [`setSignature(row)`](#setSignature), and returns self (chainable).  This is only required between data sets if signature auto-detection should be re-enabled.  It is unlikely that you will need to use this.
+
+### .getData()<a name="getData" />
+
+Returns current data tree.
+
+```js
+var tree = new Treeize();
+
+tree.grow([
+  { 'foo': 'bar', 'logs:a': 1 },
+  { 'foo': 'bar', 'logs:a': 2 },
+  { 'foo': 'baz', 'logs:a': 3 },
+]);
+
+console.log(tree.getData());
+
+/*
+[
+  { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
+  { foo: 'baz', logs: [{ a: 3 }]}
+]
+*/
+```
+
+---
 
 
 Applies the function `iterator` to each item in `arr`, in parallel.
