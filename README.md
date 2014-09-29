@@ -4,6 +4,12 @@
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
+## Installation
+
+```
+npm install treeize
+```
+
 ## Why?
 
 Because APIs usually require data in a deep object graph/collection form, but SQL results (especially heavily joined data), excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of hydrating a traditional ORM.
@@ -31,7 +37,7 @@ var peopleData = [
     'name': 'Mary Jane',
     'age': 19,
     'pets:name': 'Mittens',
-    'pets:type': 'cat',
+    'pets:type': 'kitten',
     'pets:toys:type': 'yarn'
   },
   {
@@ -45,15 +51,15 @@ var peopleData = [
 
 // ...or flat array-of-values data (as from CSV/excel) like this:
 var peopleData = [
-  ['name', 'age', 'pets:name', 'pets:type', 'pets:toys:type'],
+  ['name', 'age', 'pets:name', 'pets:type', 'pets:toys:type'], // header row
   ['John Doe', 34, 'Rex', 'dog', 'bone'],
   ['John Doe', 34, 'Rex', 'dog', 'ball'],
-  ['Mary Jane', 19, 'Mittens', 'cat', 'yarn'],
+  ['Mary Jane', 19, 'Mittens', 'kitten', 'yarn'],
   ['Mary Jane', 19, 'Fluffy', 'cat', null]
 ];
 
 
-// ...using a single simple command "grow"...
+// ...via a dead-simple implementation:
 var Treeize   = require('treeize');
 var people    = new Treeize();
 
@@ -82,7 +88,7 @@ people.getData() == [
     pets: [
       {
         name: 'Mittens',
-        type: 'cat',
+        type: 'kitten',
         toys: [
           { type: 'yarn' }
         ]
@@ -94,21 +100,10 @@ people.getData() == [
     ]
   }
 ];
-
-
-```
-
-## Installation
-
-```
-npm install treeize
 ```
 
 
-
----
-
-## API Index
+# API Index
 
 ##### 1. get/set options (optional)
 
@@ -137,8 +132,6 @@ npm install treeize
 - [`getStats()`](#getStats) - returns object with growth statistics
 - [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
 - [`log(arg1, arg2, arg3)`](#log) - console.log output of `arg1..n` when `log` option is set to `true`
-
----
 
 # API
 
@@ -175,30 +168,30 @@ For example, to change the delimiter and enable output logging, you would use th
 
 #### Available Options
 
-`input.delimiter`
+`input.delimiter`<a name="optionsInputDelimiter" />
 This sets the delimiter to be used between path segments (e.g. the ":" in "children:mother:name").
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L51-58)
 
-`input.detectCollections`
+`input.detectCollections`<a name="optionsInputDetectCollections" />
 Enables/disables the default behavior of turning plural path segments (e.g. "subjects" vs. "subject") into collections instead of object paths.  **Note:** In order to properly merge multiple rows into the same collection item, the collection must have a base-level attribute(s) acting as a signature.
 [View test example (enabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L79-86) | [or (disabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L92-99)
 
-`input.uniformRows`
+`input.uniformRows`<a name="optionsInputUniformRows" />
 By default row uniformity is disabled to allow the most flexible data merging.  This means each and every row of data that is processed (unless flat array-of-array data) will be analyzed and mapped individually into the final structure.  If your data rows have uniform attributes/columns, disable this for a performance increase.
 
-`output.prune`
+`output.prune`<a name="optionsOutputPrune" />
 Removes blank/empty nodes in the structure.  This is enabled by default to prevent sparse data sets from injecting blanks and nulls everywhere in your final output.  If nulls are important to preserve, disable this.
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L207-240)
 
-`output.objectOverwrite`
+`output.objectOverwrite`<a name="optionsOutputObjectOverwrite" />
 To allow for merging objects directly onto existing placeholder values (e.g. foreign key ids), this is enabled by default.
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L159-203)
 
-`output.resultsAsObject`
+`output.resultsAsObject`<a name="optionsOutputResultsAsObject" />
 This creates a single root object (instead of the default array of objects).
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L245-278)
 
-`log`
+`log`<a name="optionsLog" />
 Setting to true enables traversal information to be logged to console during growth process.
 
 
@@ -293,9 +286,7 @@ Equivalent to `console.log(arg1, arg2, ...)` when the `log` option is set to `tr
 ```js
 var tree = new Treeize();
 
-tree
-  .log('my message')
-;
+tree.log('my message');
 // 'my message' will NOT be written to the console
 
 tree
@@ -309,68 +300,7 @@ tree
 
 ### .grow(data, [options])<a name="grow" />
 
-The `grow(data, [options])` provides the core functionality of Treeize.  This function expands flat data into the final deep tree output.  By default, each row of associative data (objects with key/value pairs) are analyzed and injected into the object graph.
-
-## Quick Example
-
-```js
-
-var Treeize = require('treeize');
-
-// data sources may be arrays of flat associative (key/value)
-// objects or flat array of array data (usually with header row
-// as first row)
-
-var data = [
-  {
-    "name": "Orson Scott Card",
-    "birthday":  21,
-    "books:title": "Ender's Game",
-    "books:publishDate": ""
-    "books:related+:name": "Ender's Shadow"
-  }
-];
-
-var new Treeize();
-
-tree.grow(data);
-
-// creates the following...
-
-[
-  {
-    name: "Orson Scott Card",
-
-    books: [
-      {
-        name: "Ender's Game",
-        publishDate: "1/1/2011"
-        related: [
-          { name: "Ender's Shadow" }
-        ]
-      }
-    ]
-  }
-]
-];
-
-var tree = new Treeize();
-
-tree.grow(data);
-
-// get/print current deep data from Treeize instantiation
-console.log(tree.getData());
-
-// optional display of data using in built-in toString() function
-console.log(tree + '');
-
-/*
-
-
-
- */
-
-```
+The `grow(data, [options])` method provides the core functionality of Treeize.  This method expands flat data (of one or more sources) into the final deep tree output.  Each attribute path is analyzed for injection into the final object graph.
 
 #### Path Naming
 
@@ -379,83 +309,49 @@ using the following format:
 
 ```js
 {
-  "[path1]:[path2]:[pathX]:[attributeName]": [value]
+  'path1:path2:pathX:attributeName': [value]
 }
 ```
 
-Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level collection `book` object.
+Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level `books` collection.
 
 It's important to note that each row will create or find its path within the newly transformed output being created.  Your flat feed may have mass-duplication, but the results will not.
 
+##### Merging Multiple Data Sources
 
-Applies the function `iterator` to each item in `arr`, in parallel.
-The `iterator` is called with an item from the list, and a callback for when it
-has finished. If the `iterator` passes an error to its `callback`, the main
-`callback` (for the `each` function) is immediately called with the error.
-
-Note, that since this function applies `iterator` to each item in parallel,
-there is no guarantee that the iterator functions will complete in order.
-
-__Arguments__
-
-* `arr` - An array to iterate over.
-* `iterator(item, callback)` - A function to apply to each item in `arr`.
-  The iterator is passed a `callback(err)` which must be called once it has
-  completed. If no error has occurred, the `callback` should be run without
-  arguments or with an explicit `null` argument.
-* `callback(err)` - A callback which is called when all `iterator` functions
-  have finished, or an error occurs.
-
-
-
-
-
-
-
-#### Configuration (first value is default)
+Treeize was designed to merge from multiple data sources of both attribute-value and array-of-value format (as long as signatures are provided in some manner), including ones with varying signatures.
 
 ```js
+var Treeize         = require('treeize');
+var arrayOfObjects  = require('somesource1.js');
+var arrayOfValues   = require('somesource2.js');
 
-treeize.options([options]); // universal getter/setter for options.  Returns self.
+var tree = new Treeize();
 
-// default options are as follows:
+tree
+  .grow(arrayOfObjects)
+  .grow(arrayOfValues) // assumes header row as first row
+;
 
-{
-  delimiter:        ':',          // Path delimiter, as in "foo:bar:baz"
-  benchmark: {
-    speed:          false,        // Enable/Disable performance logging
-    size:           false         // Enable/Disable compression logging
-  },
-  fast:             false,        // Enable/Disable Fast Mode (see below)
-  prune:            false,        // Enable/Disable empty/null pruning (see below)
-  collections: {
-    auto:           true          // Defaults to pluralized detection for collections.
-                                  // Setting to false requires + operators for
-                                  // every collection.
-  }
-}
+// tree.getData() == final merged results
 ```
-
-
 
 ##### How to manually override the default pluralization scheme for collection-detection
 
-In the rare (but possible) case that plural/singular node names are not enough to properly
-detect collections, you may add specific overrides to the node name, using the `+` and `-`
-indicators.
+In the rare (but possible) case that plural/singular node names are not enough to properly detect collections, you may add specific overrides to the node name, using the `+` (for collections) and `-` (for singular objects) indicators.
 
 ```js
 {
-  "name":                 "Bird",
-  "attributes:legs":      2,
-  "attributes:hasWings":  true
+  'name':                 'Bird',
+  'attributes:legs':      2,
+  'attributes:hasWings':  true
 }
 
 // would naturally return
 
 [
   {
-    name: "Bird",
+    name: 'Bird',
     attributes: [
       {
         legs: 2,
@@ -469,16 +365,16 @@ indicators.
 // is NOT a collection, add a - to the path
 
 {
-  "name":                 "Bird",
-  "attributes-:legs":      2,
-  "attributes-:hasWings":  true
+  'name':                 'Bird',
+  'attributes-:legs':      2,
+  'attributes-:hasWings':  true
 }
 
 // results in
 
 [
   {
-    name: "Bird",
+    name: 'Bird',
     attributes: {
       legs: 2,
       hasWings: true
@@ -490,57 +386,69 @@ indicators.
 
 ```
 
+##### Specifying Your Own Key/Blueprint For Collections
 
-##### Pathing example
+By default, all known attributes of a collection node level define a "blueprint" by which to match future rows.  For example, in a collection of people, if both `name` and `age` attributes are defined within each row, future rows will require both the `name` and `age` values to match for the additional information to be merged into that record.  To override this default behavior and specify your own criteria, simply _mark each required attribute with a leading or tailing `*` modifier._
 
 ```js
-{
-  "title": "Ender's Game",                      // creates the first object with a title attribute of "Ender's Game"
-  "author:name": "Orson Scott Card",            // adds an author object (with name) to the book "Ender's Game" (created above)
-  "author:age":  21,                            // gives the author object an age attribute
-  "author:otherBooks:title": "Ender's Shadow",  // adds a collection named "otherBooks" to the author, with a first object of "title": "Ender's Shadow"
-}
-
-// creates the following...
-
 [
   {
-    title: "Ender's Game",
-    author: {
-      name: "Orson Scott Card",
-      age: 21,
-      otherBooks: [
-        { title: "Ender's Shadow" }
-      ]
-    }
+    'date': '1/1/2014',
+    'temperatureF': 90,
+    'temperatureC': 32
+  },
+  {
+    'date': '1/1/2014',
+    'humidity': .1
+  }
+]
+
+// ...would normally grow into:
+[
+  {
+    date: '1/1/2014',
+    temperatureF: 90,
+    temperatureC: 32
+  },
+  {
+    date: '1/1/2014',
+    humidity: 0.1
+  }
+]
+
+// ...but by specifying only the "date" attribute as the blueprint/key
+[
+  {
+    'date*': '1/1/2014',
+    'temperatureF': 90,
+    'temperatureC': 32
+  },
+  {
+    'date*': '1/1/2014',
+    'humidity': .1
+  }
+]
+
+// ...the data merges appropriately
+[
+  {
+    date: '1/1/2014',
+    temperatureF: 90,
+    temperatureC: 32,
+    humidity: 0.1
   }
 ]
 ```
 
 ### Notes
 
-- The column/attribute order is not important.  All attributes are sorted by depth before mapping.  This ensures parent nodes exist before children nodes are created within.
 - Each attribute name of the flat data must consist of the full path to its node & attribute, seperated by the delimiter.  `id` suggests an `id` attribute on a root element, whereas `name:first` implies a `first` attribute on a `name` object within a root element.
 - To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.
-- Use a `:` delimiter (default) to seperate path nodes.  To change this, use the `treeize.set([options])` function.
+- Use a `:` delimiter (default) to seperate path segments.  To change this, modify the [`input.delimiter`](#optionsInputDelimiter) option.
 
-### Fast Mode
+---
 
-Setting the option `{ fast: true }` enables Fast Mode.  In this mode, the column/attribute signature is
-pulled from the first row and applied to all other rows.  This makes the algorithm about 30% faster for a large
-data set by not having to fully analyze the pathing of each row.  Only use this when you are certain
-each row contains identical column/attribute names.
-
-_This is set to `false` by default for backwards compatibility, and to embrace more complicated
-data sets (where the attributes may be different for each row)._
-
-### Node Pruning
-
-Setting the option `{ prune: true }` enables Pruning Mode, courtesy of [@EvanK](https://github.com/EvanK).  As he points out, complex joins
-can often leave a slew of blank or nulled branches.  Enabling Prune Mode removes those, leaving only populated fields.
-Big thanks for the complete PR (with tests)!
-
-## Examples
+# Examples
 
 In this short series of examples, we'll take a standard "join dump", originally keyed
 (via attribute names) to organize by movie - and demonstrate how other organizations can
@@ -553,83 +461,84 @@ In this example, we'll take our dump (as if from a CSV or SQL result) - and name
 group by movies (as if for an `/api/movies`).
 
 ```js
-var treeize = require('treeize');
-
 var movieDump = [
   {
-    "title":             "The Prestige",
-    "director":          "Christopher Nolan",
-    "actors:name":       "Christian Bale",
-    "actors:as":         "Alfred Borden"
+    'title':             'The Prestige',
+    'director':          'Christopher Nolan',
+    'actors:name':       'Christian Bale',
+    'actors:as':         'Alfred Borden'
   },
   {
-    "title":             "The Prestige",
-    "director":          "Christopher Nolan",
-    "actors:name":       "Hugh Jackman",
-    "actors:as":         "Robert Angier"
+    'title':             'The Prestige',
+    'director':          'Christopher Nolan',
+    'actors:name':       'Hugh Jackman',
+    'actors:as':         'Robert Angier'
   },
   {
-    "title":             "The Dark Knight Rises",
-    "director":          "Christopher Nolan",
-    "actors:name":       "Christian Bale",
-    "actors:as":         "Bruce Wayne"
+    'title':             'The Dark Knight Rises',
+    'director':          'Christopher Nolan',
+    'actors:name':       'Christian Bale',
+    'actors:as':         'Bruce Wayne'
   },
   {
-    "title":             "The Departed",
-    "director":          "Martin Scorsese",
-    "actors:name":       "Leonardo DiCaprio",
-    "actors:as":         "Billy"
+    'title':             'The Departed',
+    'director':          'Martin Scorsese',
+    'actors:name':       'Leonardo DiCaprio',
+    'actors:as':         'Billy'
   },
   {
-    "title":             "The Departed",
-    "director":          "Martin Scorsese",
-    "actors:name":       "Matt Damon",
-    "actors:as":         "Colin Sullivan"
+    'title':             'The Departed',
+    'director':          'Martin Scorsese',
+    'actors:name':       'Matt Damon',
+    'actors:as':         'Colin Sullivan'
   }
 ];
 
-var movies = treeize.grow(movieDump);
+var Treeize = require('treeize');
+var movies  = new Treeize();
+
+movies.grow(movieDump);
 
 /*
 
-  'movies' now contains the following:
+  'movies.getData()' now results in the following:
 
   [
     {
-      "director": "Christopher Nolan",
-      "title": "The Prestige",
-      "actors": [
+      'director': 'Christopher Nolan',
+      'title': 'The Prestige',
+      'actors': [
         {
-          "as": "Alfred Borden",
-          "name": "Christian Bale"
+          'as': 'Alfred Borden',
+          'name': 'Christian Bale'
         },
         {
-          "as": "Robert Angier",
-          "name": "Hugh Jackman"
+          'as': 'Robert Angier',
+          'name': 'Hugh Jackman'
         }
       ]
     },
     {
-      "director": "Christopher Nolan",
-      "title": "The Dark Knight Rises",
-      "actors": [
+      'director': 'Christopher Nolan',
+      'title': 'The Dark Knight Rises',
+      'actors': [
         {
-          "as": "Bruce Wayne",
-          "name": "Christian Bale"
+          'as': 'Bruce Wayne',
+          'name': 'Christian Bale'
         }
       ]
     },
     {
-      "director": "Martin Scorsese",
-      "title": "The Departed",
-      "actors": [
+      'director': 'Martin Scorsese',
+      'title': 'The Departed',
+      'actors': [
         {
-          "as": "Billy",
-          "name": "Leonardo DiCaprio"
+          'as': 'Billy',
+          'name': 'Leonardo DiCaprio'
         },
         {
-          "as": "Colin Sullivan",
-          "name": "Matt Damon"
+          'as': 'Colin Sullivan',
+          'name': 'Matt Damon'
         }
       ]
     }
@@ -650,90 +559,91 @@ define their new target path.  In this case, by changing the base node to the ac
 name (instead of the movie name), we group everything by actor at a high level.
 
 ```js
-var treeize = require('treeize');
-
 var moviesDump = [
   {
-    "movies:title":     "The Prestige",
-    "movies:director":  "Christopher Nolan",
-    "name":             "Christian Bale",
-    "movies:as":        "Alfred Borden"
+    'movies:title':     'The Prestige',
+    'movies:director':  'Christopher Nolan',
+    'name':             'Christian Bale',
+    'movies:as':        'Alfred Borden'
   },
   {
-    "movies:title":     "The Prestige",
-    "movies:director":  "Christopher Nolan",
-    "name":             "Hugh Jackman",
-    "movies:as":        "Robert Angier"
+    'movies:title':     'The Prestige',
+    'movies:director':  'Christopher Nolan',
+    'name':             'Hugh Jackman',
+    'movies:as':        'Robert Angier'
   },
   {
-    "movies:title":     "The Dark Knight Rises",
-    "movies:director":  "Christopher Nolan",
-    "name":             "Christian Bale",
-    "movies:as":        "Bruce Wayne"
+    'movies:title':     'The Dark Knight Rises',
+    'movies:director':  'Christopher Nolan',
+    'name':             'Christian Bale',
+    'movies:as':        'Bruce Wayne'
   },
   {
-    "movies:title":     "The Departed",
-    "movies:director":  "Martin Scorsese",
-    "name":             "Leonardo DiCaprio",
-    "movies:as":        "Billy"
+    'movies:title':     'The Departed',
+    'movies:director':  'Martin Scorsese',
+    'name':             'Leonardo DiCaprio',
+    'movies:as':        'Billy'
   },
   {
-    "movies:title":     "The Departed",
-    "movies:director":  "Martin Scorsese",
-    "name":             "Matt Damon",
-    "movies:as":        "Colin Sullivan"
+    'movies:title':     'The Departed',
+    'movies:director':  'Martin Scorsese',
+    'name':             'Matt Damon',
+    'movies:as':        'Colin Sullivan'
   }
 ];
 
-var actors = treeize.grow(movieDump);
+var Treeize = require('treeize');
+var actors  = new Treeize();
+
+actors.grow(movieDump);
 
 /*
 
-  'actors' now contains the following:
+  'actors.getData()' now results in the following:
 
   [
     {
-      "name": "Christian Bale",
-      "movies": [
+      'name': 'Christian Bale',
+      'movies': [
         {
-          "as": "Alfred Borden",
-          "director": "Christopher Nolan",
-          "title": "The Prestige"
+          'as': 'Alfred Borden',
+          'director': 'Christopher Nolan',
+          'title': 'The Prestige'
         },
         {
-          "as": "Bruce Wayne",
-          "director": "Christopher Nolan",
-          "title": "The Dark Knight Rises"
+          'as': 'Bruce Wayne',
+          'director': 'Christopher Nolan',
+          'title': 'The Dark Knight Rises'
         }
       ]
     },
     {
-      "name": "Hugh Jackman",
-      "movies": [
+      'name': 'Hugh Jackman',
+      'movies': [
         {
-          "as": "Robert Angier",
-          "director": "Christopher Nolan",
-          "title": "The Prestige"
+          'as': 'Robert Angier',
+          'director': 'Christopher Nolan',
+          'title': 'The Prestige'
         }
       ]
     },
     {
-      "name": "Leonardo DiCaprio",
-      "movies": [
+      'name': 'Leonardo DiCaprio',
+      'movies': [
         {
-          "as": "Billy",
-          "director": "Martin Scorsese",
-          "title": "The Departed"
+          'as': 'Billy',
+          'director': 'Martin Scorsese',
+          'title': 'The Departed'
         }
       ]
     },
     {
-      "name": "Matt Damon",
-      "movies": [
+      'name': 'Matt Damon',
+      'movies': [
         {
-          "as": "Colin Sullivan",
-          "director": "Martin Scorsese",
-          "title": "The Departed"
+          'as': 'Colin Sullivan',
+          'director': 'Martin Scorsese',
+          'title': 'The Departed'
         }
       ]
     }
