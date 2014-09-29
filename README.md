@@ -8,55 +8,103 @@ Converts row data (in JSON/associative array format or flat array format) to obj
 
 Because APIs usually require data in a deep object graph/collection form, but SQL results (especially heavily joined data), excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of hydrating a traditional ORM.
 
+#### What it does...
+
+```js
+// Treeize turns flat associative data (as from SQL queries) like this:
+var peopleData = [
+  {
+    'name': 'John Doe',
+    'age': 34,
+    'pets:name': 'Rex',
+    'pets:type': 'dog',
+    'pets:toys:type': 'bone'
+  },
+  {
+    'name': 'John Doe',
+    'age': 34,
+    'pets:name': 'Rex',
+    'pets:type': 'dog',
+    'pets:toys:type': 'ball'
+  },
+  {
+    'name': 'Mary Jane',
+    'age': 19,
+    'pets:name': 'Mittens',
+    'pets:type': 'cat',
+    'pets:toys:type': 'yarn'
+  },
+  {
+    'name': 'Mary Jane',
+    'age': 19,
+    'pets:name': 'Fluffy',
+    'pets:type': 'cat'
+  }
+];
+
+
+// ...or flat array-of-values data (as from CSV/excel) like this:
+var peopleData = [
+  ['name', 'age', 'pets:name', 'pets:type', 'pets:toys:type'],
+  ['John Doe', 34, 'Rex', 'dog', 'bone'],
+  ['John Doe', 34, 'Rex', 'dog', 'ball'],
+  ['Mary Jane', 19, 'Mittens', 'cat', 'yarn'],
+  ['Mary Jane', 19, 'Fluffy', 'cat', null]
+];
+
+
+// ...using a single simple command "grow"...
+var Treeize   = require('treeize');
+var people    = new Treeize();
+
+people.grow(peopleData);
+
+
+// ...into deep API-ready object graphs like this:
+people.getData() == [
+  {
+    name: 'John Doe',
+    age: 34,
+    pets: [
+      {
+        name: 'Rex',
+        type: 'dog',
+        toys: [
+          { type: 'bone' },
+          { type: 'ball' }
+        ]
+      }
+    ]
+  },
+  {
+    name: 'Mary Jane',
+    age: 19,
+    pets: [
+      {
+        name: 'Mittens',
+        type: 'cat',
+        toys: [
+          { type: 'yarn' }
+        ]
+      },
+      {
+        name: 'Fluffy',
+        type: 'cat'
+      }
+    ]
+  }
+];
+
+
+```
+
 ## Installation
 
 ```
 npm install treeize
 ```
 
-## Quick Example
 
-```js
-
-var Treeize = require('treeize');
-
-// data sources may be arrays of flat associative (key/value)
-// objects or flat array of array data (usually with header row
-// as first row)
-
-var dataSource1 = require('./data/source1.js');
-var dataSource2 = require('./data/source2.js');
-
-var tree = new Treeize();
-
-tree
-  .setOptions({ input: { delimiter: '|' } }) // default delimiter is ':'
-  .grow(dataSource1)
-  .grow(dataSource2)
-;
-
-// get/print current deep data from Treeize instantiation
-console.log(tree.getData());
-
-// optional display of data using in built-in toString() function
-console.log(tree + '');
-
-```
-
-#### Path Naming
-
-Each column/attribute of each row will dictate its own destination path
-using the following format:
-
-```js
-{
-  "[path1]:[path2]:[pathX]:[attributeName]": [value]
-}
-```
-
-Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level collection `book` object.
-
-It's important to note that each row will create or find its path within the newly transformed output being created.  Your flat feed may have mass-duplication, but the results will not.
 
 ---
 
@@ -258,6 +306,86 @@ tree
 ```
 
 ---
+
+### .grow(data, [options])<a name="grow" />
+
+The `grow(data, [options])` provides the core functionality of Treeize.  This function expands flat data into the final deep tree output.  By default, each row of associative data (objects with key/value pairs) are analyzed and injected into the object graph.
+
+## Quick Example
+
+```js
+
+var Treeize = require('treeize');
+
+// data sources may be arrays of flat associative (key/value)
+// objects or flat array of array data (usually with header row
+// as first row)
+
+var data = [
+  {
+    "name": "Orson Scott Card",
+    "birthday":  21,
+    "books:title": "Ender's Game",
+    "books:publishDate": ""
+    "books:related+:name": "Ender's Shadow"
+  }
+];
+
+var new Treeize();
+
+tree.grow(data);
+
+// creates the following...
+
+[
+  {
+    name: "Orson Scott Card",
+
+    books: [
+      {
+        name: "Ender's Game",
+        publishDate: "1/1/2011"
+        related: [
+          { name: "Ender's Shadow" }
+        ]
+      }
+    ]
+  }
+]
+];
+
+var tree = new Treeize();
+
+tree.grow(data);
+
+// get/print current deep data from Treeize instantiation
+console.log(tree.getData());
+
+// optional display of data using in built-in toString() function
+console.log(tree + '');
+
+/*
+
+
+
+ */
+
+```
+
+#### Path Naming
+
+Each column/attribute of each row will dictate its own destination path
+using the following format:
+
+```js
+{
+  "[path1]:[path2]:[pathX]:[attributeName]": [value]
+}
+```
+
+Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level collection `book` object.
+
+It's important to note that each row will create or find its path within the newly transformed output being created.  Your flat feed may have mass-duplication, but the results will not.
 
 
 Applies the function `iterator` to each item in `arr`, in parallel.
