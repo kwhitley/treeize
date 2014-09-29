@@ -191,7 +191,7 @@ describe('#setOptions()', function() {
     it('should not overwrite attribute/placeholder objects with real objects when disabled', function() {
       var tree = new Treeize();
       tree = tree
-        .setOptions({ log: true, output: { objectOverwrite: false }})
+        .setOptions({ output: { objectOverwrite: false }})
         .grow(testDataOverwrite)
         .getData()
       ;

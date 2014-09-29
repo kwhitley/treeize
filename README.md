@@ -6,7 +6,7 @@ Converts row data (in JSON/associative array format or flat array format) to obj
 
 ## Why?
 
-Because APIs usually require data in a deep object graph/collection form, but SQL results, excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of a traditional ORM.
+Because APIs usually require data in a deep object graph/collection form, but SQL results (especially heavily joined data), excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of hydrating a traditional ORM.
 
 ## Installation
 
@@ -38,7 +38,7 @@ tree
 // get/print current deep data from Treeize instantiation
 console.log(tree.getData());
 
-// optional display of data using in built-in toString functions
+// optional display of data using in built-in toString() function
 console.log(tree + '');
 
 ```
@@ -88,6 +88,7 @@ It's important to note that each row will create or find its path within the new
 - [`getSignature()`](#getSignature) - returns currently defined signature
 - [`getStats()`](#getStats) - returns object with growth statistics
 - [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
+- [`log(arg1, arg2, arg3)`](#log) - console.log output of `arg1..n` when `log` option is set to `true`
 
 ---
 
@@ -215,6 +216,45 @@ console.log(tree.getData());
   { foo: 'baz', logs: [{ a: 3 }]}
 ]
 */
+```
+
+### .getStats()<a name="getStats" />
+
+Returns current growth statistics (e.g. number of sources process, number of rows, etc). _Output and format subject to change - use at your own risk._
+
+### .toString()<a name="toString" />
+
+Typecasting a treeize instance to String or manually calling `.toString()` on it will output it visually using the `util` library from node.js.
+
+```js
+var tree = new Treeize();
+
+tree.grow(data);
+
+// use automatic typecasting to trigger
+console.log(tree + '');
+
+// or call manually
+console.log(tree.toString());
+```
+
+### .log(arg1, arg2, ...)<a name="log" />
+
+Equivalent to `console.log(arg1, arg2, ...)` when the `log` option is set to `true`.  Useful for debugging messages or visual output that you can toggle from a single source.
+
+```js
+var tree = new Treeize();
+
+tree
+  .log('my message')
+;
+// 'my message' will NOT be written to the console
+
+tree
+  .setOptions({ log: true })
+  .log('my message')
+;
+// 'my message' WILL be written to the console
 ```
 
 ---
