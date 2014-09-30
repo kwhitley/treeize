@@ -461,7 +461,7 @@ In this example, we'll take our dump (as if from a CSV or SQL result) - and name
 group by movies (as if for an `/api/movies`).
 
 ```js
-var movieDump = [
+var movieData = [
   {
     'title':             'The Prestige',
     'director':          'Christopher Nolan',
@@ -497,7 +497,7 @@ var movieDump = [
 var Treeize = require('treeize');
 var movies  = new Treeize();
 
-movies.grow(movieDump);
+movies.grow(movieData);
 
 /*
 
@@ -595,7 +595,7 @@ var moviesDump = [
 var Treeize = require('treeize');
 var actors  = new Treeize();
 
-actors.grow(movieDump);
+actors.grow(moviesData);
 
 /*
 
