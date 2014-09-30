@@ -108,12 +108,14 @@ people.getData() == [
 ##### 1. get/set options (optional)
 
 - [`options([options])`](#options) - getter/setter for options
+- [`getOptions()`](#getOptions) - returns options
 - [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
 - [`resetOptions()`](#resetOptions) - resets options to defaults
 
 ##### 2a. set data signature manually if needed (optional)
 
 - [`signature([row], [options])`](#signature) - getter/setter for signature definitions
+- [`getSignature()`](#getSignature) - returns currently defined signature
 - [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
 - [`clearSignature()`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
 
@@ -127,8 +129,6 @@ people.getData() == [
 
 ##### * misc/internal methods
 
-- [`getOptions()`](#getOptions) - returns options
-- [`getSignature()`](#getSignature) - returns currently defined signature
 - [`getStats()`](#getStats) - returns object with growth statistics
 - [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
 - [`log(arg1, arg2, arg3)`](#log) - console.log output of `arg1..n` when `log` option is set to `true`
