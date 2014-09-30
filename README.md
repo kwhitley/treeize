@@ -1,6 +1,6 @@
 # Treeize.js
 
-[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=feature%2Fmulti-format)](https://travis-ci.org/kwhitley/treeize)
+[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg)](https://travis-ci.org/kwhitley/treeize)
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
