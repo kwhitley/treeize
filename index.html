@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Treeize.js by kwhitley</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Treeize.js</h1>
+        <h2>Convert row data (in JSON/associative array format) to tree/deep-object structure based on column naming conventions.</h2>
+        <a href="https://github.com/kwhitley/treeize" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="treeizejs" class="anchor" href="#treeizejs"><span class="octicon octicon-link"></span></a>Treeize.js</h1>
+
+<p><a href="https://travis-ci.org/kwhitley/treeize"><img src="https://travis-ci.org/kwhitley/treeize.svg?branch=feature%2Fmulti-format" alt="Build Status via Travis CI"></a></p>
+
+<p>Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<pre><code>npm install treeize
+</code></pre>
+
+<h2>
+<a name="why" class="anchor" href="#why"><span class="octicon octicon-link"></span></a>Why?</h2>
+
+<p>Because APIs usually require data in a deep object graph/collection form, but SQL results (especially heavily joined data), excel, csv, and other flat data sources that we're often forced to drive our applications from represent data in a very "flat" way.  Treeize takes this flattened data and based on simple column/attribute naming conventions, remaps it into a deep object graph - all without the overhead/hassle of hydrating a traditional ORM.</p>
+
+<h4>
+<a name="what-it-does" class="anchor" href="#what-it-does"><span class="octicon octicon-link"></span></a>What it does...</h4>
+
+<div class="highlight highlight-js"><pre><span class="c1">// Treeize turns flat associative data (as from SQL queries) like this:</span>
+<span class="kd">var</span> <span class="nx">peopleData</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s1">'name'</span><span class="o">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
+    <span class="s1">'age'</span><span class="o">:</span> <span class="mi">34</span><span class="p">,</span>
+    <span class="s1">'pets:name'</span><span class="o">:</span> <span class="s1">'Rex'</span><span class="p">,</span>
+    <span class="s1">'pets:type'</span><span class="o">:</span> <span class="s1">'dog'</span><span class="p">,</span>
+    <span class="s1">'pets:toys:type'</span><span class="o">:</span> <span class="s1">'bone'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'name'</span><span class="o">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
+    <span class="s1">'age'</span><span class="o">:</span> <span class="mi">34</span><span class="p">,</span>
+    <span class="s1">'pets:name'</span><span class="o">:</span> <span class="s1">'Rex'</span><span class="p">,</span>
+    <span class="s1">'pets:type'</span><span class="o">:</span> <span class="s1">'dog'</span><span class="p">,</span>
+    <span class="s1">'pets:toys:type'</span><span class="o">:</span> <span class="s1">'ball'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'name'</span><span class="o">:</span> <span class="s1">'Mary Jane'</span><span class="p">,</span>
+    <span class="s1">'age'</span><span class="o">:</span> <span class="mi">19</span><span class="p">,</span>
+    <span class="s1">'pets:name'</span><span class="o">:</span> <span class="s1">'Mittens'</span><span class="p">,</span>
+    <span class="s1">'pets:type'</span><span class="o">:</span> <span class="s1">'kitten'</span><span class="p">,</span>
+    <span class="s1">'pets:toys:type'</span><span class="o">:</span> <span class="s1">'yarn'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'name'</span><span class="o">:</span> <span class="s1">'Mary Jane'</span><span class="p">,</span>
+    <span class="s1">'age'</span><span class="o">:</span> <span class="mi">19</span><span class="p">,</span>
+    <span class="s1">'pets:name'</span><span class="o">:</span> <span class="s1">'Fluffy'</span><span class="p">,</span>
+    <span class="s1">'pets:type'</span><span class="o">:</span> <span class="s1">'cat'</span>
+  <span class="p">}</span>
+<span class="p">];</span>
+
+
+<span class="c1">// ...or flat array-of-values data (as from CSV/excel) like this:</span>
+<span class="kd">var</span> <span class="nx">peopleData</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'age'</span><span class="p">,</span> <span class="s1">'pets:name'</span><span class="p">,</span> <span class="s1">'pets:type'</span><span class="p">,</span> <span class="s1">'pets:toys:type'</span><span class="p">],</span> <span class="c1">// header row</span>
+  <span class="p">[</span><span class="s1">'John Doe'</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">'Rex'</span><span class="p">,</span> <span class="s1">'dog'</span><span class="p">,</span> <span class="s1">'bone'</span><span class="p">],</span>
+  <span class="p">[</span><span class="s1">'John Doe'</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">'Rex'</span><span class="p">,</span> <span class="s1">'dog'</span><span class="p">,</span> <span class="s1">'ball'</span><span class="p">],</span>
+  <span class="p">[</span><span class="s1">'Mary Jane'</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="s1">'Mittens'</span><span class="p">,</span> <span class="s1">'kitten'</span><span class="p">,</span> <span class="s1">'yarn'</span><span class="p">],</span>
+  <span class="p">[</span><span class="s1">'Mary Jane'</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="s1">'Fluffy'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span>
+<span class="p">];</span>
+
+
+<span class="c1">// ...via a dead-simple implementation:</span>
+<span class="kd">var</span> <span class="nx">Treeize</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'treeize'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">people</span>    <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">people</span><span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">peopleData</span><span class="p">);</span>
+
+
+<span class="c1">// ...into deep API-ready object graphs like this:</span>
+<span class="nx">people</span><span class="p">.</span><span class="nx">getData</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
+    <span class="nx">age</span><span class="o">:</span> <span class="mi">34</span><span class="p">,</span>
+    <span class="nx">pets</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="s1">'Rex'</span><span class="p">,</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="s1">'dog'</span><span class="p">,</span>
+        <span class="nx">toys</span><span class="o">:</span> <span class="p">[</span>
+          <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">'bone'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">'ball'</span> <span class="p">}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Mary Jane'</span><span class="p">,</span>
+    <span class="nx">age</span><span class="o">:</span> <span class="mi">19</span><span class="p">,</span>
+    <span class="nx">pets</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="s1">'Mittens'</span><span class="p">,</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="s1">'kitten'</span><span class="p">,</span>
+        <span class="nx">toys</span><span class="o">:</span> <span class="p">[</span>
+          <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">'yarn'</span> <span class="p">}</span>
+        <span class="p">]</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="s1">'Fluffy'</span><span class="p">,</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="s1">'cat'</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">];</span>
+</pre></div>
+
+<h1>
+<a name="api-index" class="anchor" href="#api-index"><span class="octicon octicon-link"></span></a>API Index</h1>
+
+<h5>
+<a name="1-getset-options-optional" class="anchor" href="#1-getset-options-optional"><span class="octicon octicon-link"></span></a>1. get/set options (optional)</h5>
+
+<ul>
+<li>
+<a href="#options"><code>options([options])</code></a> - getter/setter for options</li>
+<li>
+<a href="#setOptions"><code>setOptions(options)</code></a> - merges new <code>[options]</code> with existing</li>
+<li>
+<a href="#resetOptions"><code>resetOptions()</code></a> - resets options to defaults</li>
+</ul><h5>
+<a name="2a-set-data-signature-manually-if-needed-optional" class="anchor" href="#2a-set-data-signature-manually-if-needed-optional"><span class="octicon octicon-link"></span></a>2a. set data signature manually if needed (optional)</h5>
+
+<ul>
+<li>
+<a href="#signature"><code>signature([row], [options])</code></a> - getter/setter for signature definitions</li>
+<li>
+<a href="#setSignature"><code>setSignature(row, [options])</code></a> - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)</li>
+<li>
+<a href="#clearSignature"><code>clearSignature()</code></a> - clear signature between data sets (only needed when previously defined a uniform signature via <code>setSignature</code>)</li>
+</ul><h5>
+<a name="2b-grow-tree-from-data-sets" class="anchor" href="#2b-grow-tree-from-data-sets"><span class="octicon octicon-link"></span></a>2b. grow tree from data set(s)</h5>
+
+<ul>
+<li>
+<a href="#grow"><code>grow(data, [options])</code></a> - grow flat <code>data</code>, with optional local <code>[options]</code>
+</li>
+</ul><h5>
+<a name="3-retrieve-transformed-data" class="anchor" href="#3-retrieve-transformed-data"><span class="octicon octicon-link"></span></a>3. retrieve transformed data</h5>
+
+<ul>
+<li>
+<a href="#getData"><code>getData()</code></a> - gets current tree data</li>
+</ul><h5>
+<a name="-miscinternal-methods" class="anchor" href="#-miscinternal-methods"><span class="octicon octicon-link"></span></a>* misc/internal methods</h5>
+
+<ul>
+<li>
+<a href="#getOptions"><code>getOptions()</code></a> - returns options</li>
+<li>
+<a href="#getSignature"><code>getSignature()</code></a> - returns currently defined signature</li>
+<li>
+<a href="#getStats"><code>getStats()</code></a> - returns object with growth statistics</li>
+<li>
+<a href="#toString"><code>toString()</code></a> - uses <code>util</code> to return data in visually formatted object graph</li>
+<li>
+<a href="#log"><code>log(arg1, arg2, arg3)</code></a> - console.log output of <code>arg1..n</code> when <code>log</code> option is set to <code>true</code>
+</li>
+</ul><h1>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h1>
+
+<h3>
+<a name="optionsoptions" class="anchor" href="#optionsoptions"><span class="octicon octicon-link"></span></a>.options([options])<a name="options"></a>
+</h3>
+
+<p><a href="#getOptions">Getter</a>/<a href="#setOptions">Setter</a> for options.  If options object is passed, this is identical to <a href="#setOptions">.setOptions(options)</a> and returns self (chainable).  If no options are passed, this is identical to <a href="#getOptions">.getOptions()</a> and returns current options as object.</p>
+
+<h3>
+<a name="setoptionsoptions" class="anchor" href="#setoptionsoptions"><span class="octicon octicon-link"></span></a>.setOptions(options)<a name="setOptions"></a>
+</h3>
+
+<p>Sets options globally for the Treeize instance.  This is an alias for <code>.options(options)</code>. Default options are as follows:</p>
+
+<div class="highlight highlight-js"><pre><span class="p">{</span>
+  <span class="nx">input</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">delimiter</span><span class="o">:</span>          <span class="s1">':'</span><span class="p">,</span>    <span class="c1">// delimiter between path segments, defaults to ':'</span>
+    <span class="nx">detectCollections</span><span class="o">:</span>  <span class="kc">true</span><span class="p">,</span>   <span class="c1">// when true, plural path segments become collections</span>
+    <span class="nx">uniformRows</span><span class="o">:</span>        <span class="kc">false</span><span class="p">,</span>  <span class="c1">// set to true if each row has identical signatures</span>
+  <span class="p">},</span>
+  <span class="nx">output</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">prune</span><span class="o">:</span>              <span class="kc">true</span><span class="p">,</span>   <span class="c1">// remove blank/null values and empty nodes</span>
+    <span class="nx">objectOverwrite</span><span class="o">:</span>    <span class="kc">true</span><span class="p">,</span>   <span class="c1">// incoming objects will overwrite placeholder ids</span>
+    <span class="nx">resultsAsObject</span><span class="o">:</span>    <span class="kc">false</span><span class="p">,</span>  <span class="c1">// root structure defaults to array (instead of object)</span>
+  <span class="p">},</span>
+  <span class="nx">log</span><span class="o">:</span>                  <span class="kc">false</span><span class="p">,</span>  <span class="c1">// enable logging</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>For example, to change the delimiter and enable output logging, you would use the following:</p>
+
+<div class="highlight highlight-js"><pre><span class="p">.</span><span class="nx">setOptions</span><span class="p">({</span> <span class="nx">log</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">input</span><span class="o">:</span> <span class="p">{</span> <span class="nx">delimiter</span><span class="o">:</span> <span class="s1">'|'</span> <span class="p">}});</span>
+</pre></div>
+
+<h4>
+<a name="available-options" class="anchor" href="#available-options"><span class="octicon octicon-link"></span></a>Available Options</h4>
+
+<p><code>input.delimiter</code><a name="optionsInputDelimiter"></a>
+This sets the delimiter to be used between path segments (e.g. the ":" in "children:mother:name").
+<a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L51-58">View test example</a></p>
+
+<p><code>input.detectCollections</code><a name="optionsInputDetectCollections"></a>
+Enables/disables the default behavior of turning plural path segments (e.g. "subjects" vs. "subject") into collections instead of object paths.  <strong>Note:</strong> In order to properly merge multiple rows into the same collection item, the collection must have a base-level attribute(s) acting as a signature.
+<a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L79-86">View test example (enabled)</a> | <a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L92-99">or (disabled)</a></p>
+
+<p><code>input.uniformRows</code><a name="optionsInputUniformRows"></a>
+By default row uniformity is disabled to allow the most flexible data merging.  This means each and every row of data that is processed (unless flat array-of-array data) will be analyzed and mapped individually into the final structure.  If your data rows have uniform attributes/columns, disable this for a performance increase.</p>
+
+<p><code>output.prune</code><a name="optionsOutputPrune"></a>
+Removes blank/empty nodes in the structure.  This is enabled by default to prevent sparse data sets from injecting blanks and nulls everywhere in your final output.  If nulls are important to preserve, disable this.
+<a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L207-240">View test example</a></p>
+
+<p><code>output.objectOverwrite</code><a name="optionsOutputObjectOverwrite"></a>
+To allow for merging objects directly onto existing placeholder values (e.g. foreign key ids), this is enabled by default.
+<a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L159-203">View test example</a></p>
+
+<p><code>output.resultsAsObject</code><a name="optionsOutputResultsAsObject"></a>
+This creates a single root object (instead of the default array of objects).
+<a href="https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L245-278">View test example</a></p>
+
+<p><code>log</code><a name="optionsLog"></a>
+Setting to true enables traversal information to be logged to console during growth process.</p>
+
+<h3>
+<a name="getoptions" class="anchor" href="#getoptions"><span class="octicon octicon-link"></span></a>.getOptions()<a name="getOptions"></a>
+</h3>
+
+<p>Returns the current global options (as object).
+<a href="#setOptions">View example format</a></p>
+
+<h3>
+<a name="resetoptionsoptions" class="anchor" href="#resetoptionsoptions"><span class="octicon octicon-link"></span></a>.resetOptions(options)<a name="resetOptions"></a>
+</h3>
+
+<p>Resets all global options to <a href="#setOptions">original defaults</a> and returns self (chainable).</p>
+
+<h3>
+<a name="signaturerow-options" class="anchor" href="#signaturerow-options"><span class="octicon octicon-link"></span></a>.signature([row], [options])<a name="signature"></a>
+</h3>
+
+<p><a href="#getSignature">Getter</a>/<a href="#setSignature">Setter</a> for row signatures.  If options object is passed, this is identical to <a href="#setSignature">.setSignature(options)</a> and returns self (chainable).  If no options are passed, this is identical to <a href="#getSignature">.getSignature()</a> and returns currently defined signature as object.</p>
+
+<h3>
+<a name="setsignaturerow-options" class="anchor" href="#setsignaturerow-options"><span class="octicon octicon-link"></span></a>.setSignature(row, [options])<a name="setSignature"></a>
+</h3>
+
+<p>Manually defines the signature for upcoming data sets from argument <code>row</code>, with optional <code>options</code>.  The row may be either in object (key/value) form or flat array form (array of paths). This method is only required if sharing a single signature across multiple data sources (when merging homogeneous data sets), or when the data itself has no header information (for instance, with bulk flat array-of-values data).  Returns self (chainable).</p>
+
+<div class="highlight highlight-js"><pre><span class="c1">// May be set from a single row of associative data</span>
+<span class="p">.</span><span class="nx">setSignature</span><span class="p">({</span>
+  <span class="s1">'id'</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s1">'name:first'</span><span class="o">:</span> <span class="s1">'Kevin'</span><span class="p">,</span>
+  <span class="s1">'name:last'</span><span class="o">:</span> <span class="s1">'Whitley'</span><span class="p">,</span>
+  <span class="s1">'hobbies:name'</span><span class="o">:</span> <span class="s1">'photography'</span>
+  <span class="s1">'hobbies:years'</span><span class="o">:</span> <span class="mi">12</span>
+<span class="p">})</span>
+
+<span class="c1">// Or from header row of flat array data</span>
+<span class="p">.</span><span class="nx">setSignature</span><span class="p">([</span><span class="s1">'id'</span><span class="p">,</span> <span class="s1">'name:first'</span><span class="p">,</span> <span class="s1">'name:last'</span><span class="p">,</span> <span class="s1">'hobbies:name'</span><span class="p">,</span> <span class="s1">'hobbies:years'</span><span class="p">])</span>
+</pre></div>
+
+<h3>
+<a name="getsignature" class="anchor" href="#getsignature"><span class="octicon octicon-link"></span></a>.getSignature()<a name="getSignature"></a>
+</h3>
+
+<p>Returns currently defined signature. <em>For internal use only.</em></p>
+
+<h3>
+<a name="clearsignature" class="anchor" href="#clearsignature"><span class="octicon octicon-link"></span></a>.clearSignature()<a name="clearSignature"></a>
+</h3>
+
+<p>Clears currently-defined signature if previously set via <a href="#setSignature"><code>setSignature(row)</code></a>, and returns self (chainable).  This is only required between data sets if signature auto-detection should be re-enabled.  It is unlikely that you will need to use this.</p>
+
+<h3>
+<a name="getdata" class="anchor" href="#getdata"><span class="octicon octicon-link"></span></a>.getData()<a name="getData"></a>
+</h3>
+
+<p>Returns current data tree.</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">tree</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">tree</span><span class="p">.</span><span class="nx">grow</span><span class="p">([</span>
+  <span class="p">{</span> <span class="s1">'foo'</span><span class="o">:</span> <span class="s1">'bar'</span><span class="p">,</span> <span class="s1">'logs:a'</span><span class="o">:</span> <span class="mi">1</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">'foo'</span><span class="o">:</span> <span class="s1">'bar'</span><span class="p">,</span> <span class="s1">'logs:a'</span><span class="o">:</span> <span class="mi">2</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">'foo'</span><span class="o">:</span> <span class="s1">'baz'</span><span class="p">,</span> <span class="s1">'logs:a'</span><span class="o">:</span> <span class="mi">3</span> <span class="p">},</span>
+<span class="p">]);</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">.</span><span class="nx">getData</span><span class="p">());</span>
+
+<span class="cm">/*</span>
+<span class="cm">[</span>
+<span class="cm">  { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },</span>
+<span class="cm">  { foo: 'baz', logs: [{ a: 3 }]}</span>
+<span class="cm">]</span>
+<span class="cm">*/</span>
+</pre></div>
+
+<h3>
+<a name="getstats" class="anchor" href="#getstats"><span class="octicon octicon-link"></span></a>.getStats()<a name="getStats"></a>
+</h3>
+
+<p>Returns current growth statistics (e.g. number of sources process, number of rows, etc). <em>Output and format subject to change - use at your own risk.</em></p>
+
+<h3>
+<a name="tostring" class="anchor" href="#tostring"><span class="octicon octicon-link"></span></a>.toString()<a name="toString"></a>
+</h3>
+
+<p>Typecasting a treeize instance to String or manually calling <code>.toString()</code> on it will output it visually using the <code>util</code> library from node.js.</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">tree</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">tree</span><span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="c1">// use automatic typecasting to trigger</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span> <span class="o">+</span> <span class="s1">''</span><span class="p">);</span>
+
+<span class="c1">// or call manually</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tree</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+</pre></div>
+
+<h3>
+<a name="logarg1-arg2-" class="anchor" href="#logarg1-arg2-"><span class="octicon octicon-link"></span></a>.log(arg1, arg2, ...)<a name="log"></a>
+</h3>
+
+<p>Equivalent to <code>console.log(arg1, arg2, ...)</code> when the <code>log</code> option is set to <code>true</code>.  Useful for debugging messages or visual output that you can toggle from a single source.</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">tree</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">tree</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'my message'</span><span class="p">);</span>
+<span class="c1">// 'my message' will NOT be written to the console</span>
+
+<span class="nx">tree</span>
+  <span class="p">.</span><span class="nx">setOptions</span><span class="p">({</span> <span class="nx">log</span><span class="o">:</span> <span class="kc">true</span> <span class="p">})</span>
+  <span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'my message'</span><span class="p">)</span>
+<span class="p">;</span>
+<span class="c1">// 'my message' WILL be written to the console</span>
+</pre></div>
+
+<hr><h3>
+<a name="growdata-options" class="anchor" href="#growdata-options"><span class="octicon octicon-link"></span></a>.grow(data, [options])<a name="grow"></a>
+</h3>
+
+<p>The <code>grow(data, [options])</code> method provides the core functionality of Treeize.  This method expands flat data (of one or more sources) into the final deep tree output.  Each attribute path is analyzed for injection into the final object graph.</p>
+
+<h4>
+<a name="path-naming" class="anchor" href="#path-naming"><span class="octicon octicon-link"></span></a>Path Naming</h4>
+
+<p>Each column/attribute of each row will dictate its own destination path
+using the following format:</p>
+
+<div class="highlight highlight-js"><pre><span class="p">{</span>
+  <span class="s1">'path1:path2:pathX:attributeName'</span><span class="o">:</span> <span class="p">[</span><span class="nx">value</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Each "path" (up to n-levels deep) is optional and represents a single object node if the word is singular, or a collection if the word is plural (with optional +/- override modifiers).  For example, a "favoriteMovie:name" path will add a "favoriteMovie" object to its path - where "favoriteMovies:name" would add a collection of movies (complete with a first entry) instead.  For root nodes, include only the attribute name without any preceding paths.  If you were creating a final output of a book collection for instance, the title of the book would likely be pathless as you would want the value on the high-level <code>books</code> collection.</p>
+
+<p>It's important to note that each row will create or find its path within the newly transformed output being created.  Your flat feed may have mass-duplication, but the results will not.</p>
+
+<h5>
+<a name="merging-multiple-data-sources" class="anchor" href="#merging-multiple-data-sources"><span class="octicon octicon-link"></span></a>Merging Multiple Data Sources</h5>
+
+<p>Treeize was designed to merge from multiple data sources of both attribute-value and array-of-value format (as long as signatures are provided in some manner), including ones with varying signatures.</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">Treeize</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'treeize'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">arrayOfObjects</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'somesource1.js'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">arrayOfValues</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'somesource2.js'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">tree</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">tree</span>
+  <span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">arrayOfObjects</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">arrayOfValues</span><span class="p">)</span> <span class="c1">// assumes header row as first row</span>
+<span class="p">;</span>
+
+<span class="c1">// tree.getData() == final merged results</span>
+</pre></div>
+
+<h5>
+<a name="how-to-manually-override-the-default-pluralization-scheme-for-collection-detection" class="anchor" href="#how-to-manually-override-the-default-pluralization-scheme-for-collection-detection"><span class="octicon octicon-link"></span></a>How to manually override the default pluralization scheme for collection-detection</h5>
+
+<p>In the rare (but possible) case that plural/singular node names are not enough to properly detect collections, you may add specific overrides to the node name, using the <code>+</code> (for collections) and <code>-</code> (for singular objects) indicators.</p>
+
+<div class="highlight highlight-js"><pre><span class="p">{</span>
+  <span class="s1">'name'</span><span class="o">:</span>                 <span class="s1">'Bird'</span><span class="p">,</span>
+  <span class="s1">'attributes:legs'</span><span class="o">:</span>      <span class="mi">2</span><span class="p">,</span>
+  <span class="s1">'attributes:hasWings'</span><span class="o">:</span>  <span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="c1">// would naturally return</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Bird'</span><span class="p">,</span>
+    <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nx">legs</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="nx">hasWings</span><span class="o">:</span> <span class="kc">true</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1">// to tell treeize that the node (detected as a plural collection)</span>
+<span class="c1">// is NOT a collection, add a - to the path</span>
+
+<span class="p">{</span>
+  <span class="s1">'name'</span><span class="o">:</span>                 <span class="s1">'Bird'</span><span class="p">,</span>
+  <span class="s1">'attributes-:legs'</span><span class="o">:</span>      <span class="mi">2</span><span class="p">,</span>
+  <span class="s1">'attributes-:hasWings'</span><span class="o">:</span>  <span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="c1">// results in</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">'Bird'</span><span class="p">,</span>
+    <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">legs</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="nx">hasWings</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1">// conversely, add a + to a path to force it into a collection</span>
+
+</pre></div>
+
+<h5>
+<a name="specifying-your-own-keyblueprint-for-collections" class="anchor" href="#specifying-your-own-keyblueprint-for-collections"><span class="octicon octicon-link"></span></a>Specifying Your Own Key/Blueprint For Collections</h5>
+
+<p>By default, all known attributes of a collection node level define a "blueprint" by which to match future rows.  For example, in a collection of people, if both <code>name</code> and <code>age</code> attributes are defined within each row, future rows will require both the <code>name</code> and <code>age</code> values to match for the additional information to be merged into that record.  To override this default behavior and specify your own criteria, simply <em>mark each required attribute with a leading or tailing <code>*</code> modifier.</em></p>
+
+<div class="highlight highlight-js"><pre><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s1">'date'</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="s1">'temperatureF'</span><span class="o">:</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="s1">'temperatureC'</span><span class="o">:</span> <span class="mi">32</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'date'</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="s1">'humidity'</span><span class="o">:</span> <span class="p">.</span><span class="mi">1</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1">// ...would normally grow into:</span>
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nx">date</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="nx">temperatureF</span><span class="o">:</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="nx">temperatureC</span><span class="o">:</span> <span class="mi">32</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">date</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="nx">humidity</span><span class="o">:</span> <span class="mf">0.1</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1">// ...but by specifying only the "date" attribute as the blueprint/key</span>
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s1">'date*'</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="s1">'temperatureF'</span><span class="o">:</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="s1">'temperatureC'</span><span class="o">:</span> <span class="mi">32</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'date*'</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="s1">'humidity'</span><span class="o">:</span> <span class="p">.</span><span class="mi">1</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1">// ...the data merges appropriately</span>
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nx">date</span><span class="o">:</span> <span class="s1">'1/1/2014'</span><span class="p">,</span>
+    <span class="nx">temperatureF</span><span class="o">:</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="nx">temperatureC</span><span class="o">:</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="nx">humidity</span><span class="o">:</span> <span class="mf">0.1</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+
+<h3>
+<a name="notes" class="anchor" href="#notes"><span class="octicon octicon-link"></span></a>Notes</h3>
+
+<ul>
+<li>Each attribute name of the flat data must consist of the full path to its node &amp; attribute, seperated by the delimiter.  <code>id</code> suggests an <code>id</code> attribute on a root element, whereas <code>name:first</code> implies a <code>first</code> attribute on a <code>name</code> object within a root element.</li>
+<li>To imply a collection in the path/attribute-name, use a plural name (e.g. "subjects" instead of "subject").  Otherwise, use a singular name for a singular object.</li>
+<li>Use a <code>:</code> delimiter (default) to seperate path segments.  To change this, modify the <a href="#optionsInputDelimiter"><code>input.delimiter</code></a> option.</li>
+</ul><hr><h1>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h1>
+
+<p>In this short series of examples, we'll take a standard "join dump", originally keyed
+(via attribute names) to organize by movie - and demonstrate how other organizations can
+be easily derived from the same original feed... by simply modifying the column/attribute
+names in the output.</p>
+
+<h4>
+<a name="example-1" class="anchor" href="#example-1"><span class="octicon octicon-link"></span></a>Example 1</h4>
+
+<p>In this example, we'll take our dump (as if from a CSV or SQL result) - and name the keys to
+group by movies (as if for an <code>/api/movies</code>).</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">movieDump</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s1">'title'</span><span class="o">:</span>             <span class="s1">'The Prestige'</span><span class="p">,</span>
+    <span class="s1">'director'</span><span class="o">:</span>          <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'actors:name'</span><span class="o">:</span>       <span class="s1">'Christian Bale'</span><span class="p">,</span>
+    <span class="s1">'actors:as'</span><span class="o">:</span>         <span class="s1">'Alfred Borden'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'title'</span><span class="o">:</span>             <span class="s1">'The Prestige'</span><span class="p">,</span>
+    <span class="s1">'director'</span><span class="o">:</span>          <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'actors:name'</span><span class="o">:</span>       <span class="s1">'Hugh Jackman'</span><span class="p">,</span>
+    <span class="s1">'actors:as'</span><span class="o">:</span>         <span class="s1">'Robert Angier'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'title'</span><span class="o">:</span>             <span class="s1">'The Dark Knight Rises'</span><span class="p">,</span>
+    <span class="s1">'director'</span><span class="o">:</span>          <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'actors:name'</span><span class="o">:</span>       <span class="s1">'Christian Bale'</span><span class="p">,</span>
+    <span class="s1">'actors:as'</span><span class="o">:</span>         <span class="s1">'Bruce Wayne'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'title'</span><span class="o">:</span>             <span class="s1">'The Departed'</span><span class="p">,</span>
+    <span class="s1">'director'</span><span class="o">:</span>          <span class="s1">'Martin Scorsese'</span><span class="p">,</span>
+    <span class="s1">'actors:name'</span><span class="o">:</span>       <span class="s1">'Leonardo DiCaprio'</span><span class="p">,</span>
+    <span class="s1">'actors:as'</span><span class="o">:</span>         <span class="s1">'Billy'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'title'</span><span class="o">:</span>             <span class="s1">'The Departed'</span><span class="p">,</span>
+    <span class="s1">'director'</span><span class="o">:</span>          <span class="s1">'Martin Scorsese'</span><span class="p">,</span>
+    <span class="s1">'actors:name'</span><span class="o">:</span>       <span class="s1">'Matt Damon'</span><span class="p">,</span>
+    <span class="s1">'actors:as'</span><span class="o">:</span>         <span class="s1">'Colin Sullivan'</span>
+  <span class="p">}</span>
+<span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">Treeize</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'treeize'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">movies</span>  <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">movies</span><span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">movieDump</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+
+<span class="cm">  'movies.getData()' now results in the following:</span>
+
+<span class="cm">  [</span>
+<span class="cm">    {</span>
+<span class="cm">      'director': 'Christopher Nolan',</span>
+<span class="cm">      'title': 'The Prestige',</span>
+<span class="cm">      'actors': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Alfred Borden',</span>
+<span class="cm">          'name': 'Christian Bale'</span>
+<span class="cm">        },</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Robert Angier',</span>
+<span class="cm">          'name': 'Hugh Jackman'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    },</span>
+<span class="cm">    {</span>
+<span class="cm">      'director': 'Christopher Nolan',</span>
+<span class="cm">      'title': 'The Dark Knight Rises',</span>
+<span class="cm">      'actors': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Bruce Wayne',</span>
+<span class="cm">          'name': 'Christian Bale'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    },</span>
+<span class="cm">    {</span>
+<span class="cm">      'director': 'Martin Scorsese',</span>
+<span class="cm">      'title': 'The Departed',</span>
+<span class="cm">      'actors': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Billy',</span>
+<span class="cm">          'name': 'Leonardo DiCaprio'</span>
+<span class="cm">        },</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Colin Sullivan',</span>
+<span class="cm">          'name': 'Matt Damon'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    }</span>
+<span class="cm">  ]</span>
+
+<span class="cm">*/</span>
+</pre></div>
+
+<h4>
+<a name="example-2" class="anchor" href="#example-2"><span class="octicon octicon-link"></span></a>Example 2</h4>
+
+<p>Taking the same feed, but modifying the target paths through the attribute/column
+names we can completely transform the data (as you would for another API endpoint,
+for example).  This time we'll organize the data by actors, as you would for
+and endpoint like <code>/api/actors</code>.</p>
+
+<p>Notice the feed is left unchanged - only the attribute names have been modified to
+define their new target path.  In this case, by changing the base node to the actor
+name (instead of the movie name), we group everything by actor at a high level.</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">moviesDump</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s1">'movies:title'</span><span class="o">:</span>     <span class="s1">'The Prestige'</span><span class="p">,</span>
+    <span class="s1">'movies:director'</span><span class="o">:</span>  <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'name'</span><span class="o">:</span>             <span class="s1">'Christian Bale'</span><span class="p">,</span>
+    <span class="s1">'movies:as'</span><span class="o">:</span>        <span class="s1">'Alfred Borden'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'movies:title'</span><span class="o">:</span>     <span class="s1">'The Prestige'</span><span class="p">,</span>
+    <span class="s1">'movies:director'</span><span class="o">:</span>  <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'name'</span><span class="o">:</span>             <span class="s1">'Hugh Jackman'</span><span class="p">,</span>
+    <span class="s1">'movies:as'</span><span class="o">:</span>        <span class="s1">'Robert Angier'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'movies:title'</span><span class="o">:</span>     <span class="s1">'The Dark Knight Rises'</span><span class="p">,</span>
+    <span class="s1">'movies:director'</span><span class="o">:</span>  <span class="s1">'Christopher Nolan'</span><span class="p">,</span>
+    <span class="s1">'name'</span><span class="o">:</span>             <span class="s1">'Christian Bale'</span><span class="p">,</span>
+    <span class="s1">'movies:as'</span><span class="o">:</span>        <span class="s1">'Bruce Wayne'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'movies:title'</span><span class="o">:</span>     <span class="s1">'The Departed'</span><span class="p">,</span>
+    <span class="s1">'movies:director'</span><span class="o">:</span>  <span class="s1">'Martin Scorsese'</span><span class="p">,</span>
+    <span class="s1">'name'</span><span class="o">:</span>             <span class="s1">'Leonardo DiCaprio'</span><span class="p">,</span>
+    <span class="s1">'movies:as'</span><span class="o">:</span>        <span class="s1">'Billy'</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s1">'movies:title'</span><span class="o">:</span>     <span class="s1">'The Departed'</span><span class="p">,</span>
+    <span class="s1">'movies:director'</span><span class="o">:</span>  <span class="s1">'Martin Scorsese'</span><span class="p">,</span>
+    <span class="s1">'name'</span><span class="o">:</span>             <span class="s1">'Matt Damon'</span><span class="p">,</span>
+    <span class="s1">'movies:as'</span><span class="o">:</span>        <span class="s1">'Colin Sullivan'</span>
+  <span class="p">}</span>
+<span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">Treeize</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'treeize'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">actors</span>  <span class="o">=</span> <span class="k">new</span> <span class="nx">Treeize</span><span class="p">();</span>
+
+<span class="nx">actors</span><span class="p">.</span><span class="nx">grow</span><span class="p">(</span><span class="nx">movieDump</span><span class="p">);</span>
+
+<span class="cm">/*</span>
+
+<span class="cm">  'actors.getData()' now results in the following:</span>
+
+<span class="cm">  [</span>
+<span class="cm">    {</span>
+<span class="cm">      'name': 'Christian Bale',</span>
+<span class="cm">      'movies': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Alfred Borden',</span>
+<span class="cm">          'director': 'Christopher Nolan',</span>
+<span class="cm">          'title': 'The Prestige'</span>
+<span class="cm">        },</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Bruce Wayne',</span>
+<span class="cm">          'director': 'Christopher Nolan',</span>
+<span class="cm">          'title': 'The Dark Knight Rises'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    },</span>
+<span class="cm">    {</span>
+<span class="cm">      'name': 'Hugh Jackman',</span>
+<span class="cm">      'movies': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Robert Angier',</span>
+<span class="cm">          'director': 'Christopher Nolan',</span>
+<span class="cm">          'title': 'The Prestige'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    },</span>
+<span class="cm">    {</span>
+<span class="cm">      'name': 'Leonardo DiCaprio',</span>
+<span class="cm">      'movies': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Billy',</span>
+<span class="cm">          'director': 'Martin Scorsese',</span>
+<span class="cm">          'title': 'The Departed'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    },</span>
+<span class="cm">    {</span>
+<span class="cm">      'name': 'Matt Damon',</span>
+<span class="cm">      'movies': [</span>
+<span class="cm">        {</span>
+<span class="cm">          'as': 'Colin Sullivan',</span>
+<span class="cm">          'director': 'Martin Scorsese',</span>
+<span class="cm">          'title': 'The Departed'</span>
+<span class="cm">        }</span>
+<span class="cm">      ]</span>
+<span class="cm">    }</span>
+<span class="cm">  ]</span>
+
+<span class="cm">*/</span>
+</pre></div>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/kwhitley/treeize/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/kwhitley/treeize/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/kwhitley/treeize"></a> is maintained by <a href="https://github.com/kwhitley">kwhitley</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
