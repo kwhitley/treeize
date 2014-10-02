@@ -1,6 +1,6 @@
 # Treeize.js
 
-[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg?branch=feature%2Fmulti-format)](https://travis-ci.org/kwhitley/treeize)
+[![Build Status via Travis CI](https://travis-ci.org/kwhitley/treeize.svg)](https://travis-ci.org/kwhitley/treeize)
 
 Converts row data (in JSON/associative array format or flat array format) to object/tree structure based on simple column naming conventions.
 
@@ -108,12 +108,14 @@ people.getData() == [
 ##### 1. get/set options (optional)
 
 - [`options([options])`](#options) - getter/setter for options
+- [`getOptions()`](#getOptions) - returns options
 - [`setOptions(options)`](#setOptions) - merges new `[options]` with existing
 - [`resetOptions()`](#resetOptions) - resets options to defaults
 
 ##### 2a. set data signature manually if needed (optional)
 
 - [`signature([row], [options])`](#signature) - getter/setter for signature definitions
+- [`getSignature()`](#getSignature) - returns currently defined signature
 - [`setSignature(row, [options])`](#setSignature) - sets signature using a specific row of data/headers (preserves signature between data sets if uniformity option is enabled)
 - [`clearSignature()`](#clearSignature) - clear signature between data sets (only needed when previously defined a uniform signature via `setSignature`)
 
@@ -127,8 +129,6 @@ people.getData() == [
 
 ##### * misc/internal methods
 
-- [`getOptions()`](#getOptions) - returns options
-- [`getSignature()`](#getSignature) - returns currently defined signature
 - [`getStats()`](#getStats) - returns object with growth statistics
 - [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
 - [`log(arg1, arg2, arg3)`](#log) - console.log output of `arg1..n` when `log` option is set to `true`
@@ -461,7 +461,7 @@ In this example, we'll take our dump (as if from a CSV or SQL result) - and name
 group by movies (as if for an `/api/movies`).
 
 ```js
-var movieDump = [
+var movieData = [
   {
     'title':             'The Prestige',
     'director':          'Christopher Nolan',
@@ -497,7 +497,7 @@ var movieDump = [
 var Treeize = require('treeize');
 var movies  = new Treeize();
 
-movies.grow(movieDump);
+movies.grow(movieData);
 
 /*
 
@@ -595,7 +595,7 @@ var moviesDump = [
 var Treeize = require('treeize');
 var actors  = new Treeize();
 
-actors.grow(movieDump);
+actors.grow(moviesData);
 
 /*
 
@@ -651,3 +651,10 @@ actors.grow(movieDump);
 
 */
 ```
+
+# Changelog
+
+### 2.0.1
+
+- minor README modifications
+- performance tuning... ~400% performance boost over 2.0.0
