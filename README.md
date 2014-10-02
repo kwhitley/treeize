@@ -651,3 +651,10 @@ actors.grow(moviesData);
 
 */
 ```
+
+# Changelog
+
+### 2.0.1
+
+- minor README modifications
+- performance tuning... ~400% performance boost over 2.0.0
