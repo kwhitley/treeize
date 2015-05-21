@@ -8,6 +8,31 @@ var arraywelldata = require('./data/arraywelldata');
 var arraywelldataNoHeaders = require('./data/arraywelldata-no-headers');
 var classdata = require('./data/classdata');
 
+describe('#getSeedData()', function() {
+  it('should return original flat data', function() {
+    var tree = new Treeize();
+    tree
+      .grow(welldata1)
+      .getSeedData()
+      .should.eql(welldata1)
+    ;
+  });
+
+  it('should return original flat data from multiple data sources', function() {
+    var tree = new Treeize();
+
+    tree
+      .grow([{ 'foo': 'bar', 'logs:a': 1 }])
+      .grow([{ 'foo': 'bar', 'logs:b': 2 }])
+      .getSeedData()
+      .should.eql([
+        { 'foo': 'bar', 'logs:a': 1 },
+        { 'foo': 'bar', 'logs:b': 2 }
+      ])
+    ;
+  });
+});
+
 describe('#getStats()', function() {
   var tree = new Treeize();
   var stats = tree.grow([
