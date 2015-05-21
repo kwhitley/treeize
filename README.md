@@ -126,6 +126,7 @@ people.getData() == [
 ##### 3. retrieve transformed data
 
 - [`getData()`](#getData) - gets current tree data
+- [`getSeedData()`](#getSeedData) - gets original, flat data
 
 ##### * misc/internal methods
 
@@ -255,6 +256,30 @@ console.log(tree.getData());
 [
   { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
   { foo: 'baz', logs: [{ a: 3 }]}
+]
+*/
+```
+
+### .getSeedData()<a name="getSeedData" />
+
+Returns original, flat data.
+
+```js
+var tree = new Treeize();
+
+tree.grow([
+  { 'foo': 'bar', 'logs:a': 1 },
+  { 'foo': 'bar', 'logs:a': 2 },
+  { 'foo': 'baz', 'logs:a': 3 }
+]);
+
+console.log(tree.getSeedData());
+
+/*
+[
+  { 'foo': 'bar', 'logs:a': 1 },
+  { 'foo': 'bar', 'logs:a': 2 },
+  { 'foo': 'baz', 'logs:a': 3 }
 ]
 */
 ```
