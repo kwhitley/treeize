@@ -683,3 +683,7 @@ actors.grow(moviesData);
 
 - minor README modifications
 - performance tuning... ~400% performance boost over 2.0.0
+
+### 2.0.2
+
+- added `.getSeedData()` to retrieve original, flat data
