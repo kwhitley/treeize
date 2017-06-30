@@ -131,8 +131,6 @@ people.getData() == [
 ##### * misc/internal methods
 
 - [`getStats()`](#getStats) - returns object with growth statistics
-- [`toString()`](#toString) - uses `util` to return data in visually formatted object graph
-- [`log(arg1, arg2, arg3)`](#log) - console.log output of `arg1..n` when `log` option is set to `true`
 
 # API
 
@@ -156,15 +154,14 @@ Sets options globally for the Treeize instance.  This is an alias for `.options(
     prune:              true,   // remove blank/null values and empty nodes
     objectOverwrite:    true,   // incoming objects will overwrite placeholder ids
     resultsAsObject:    false,  // root structure defaults to array (instead of object)
-  },
-  log:                  false,  // enable logging
+  }
 }
 ```
 
 For example, to change the delimiter and enable output logging, you would use the following:
 
 ```js
-.setOptions({ log: true, input: { delimiter: '|' }});
+.setOptions({ input: { delimiter: '|' }});
 ```
 
 #### Available Options
@@ -191,10 +188,6 @@ To allow for merging objects directly onto existing placeholder values (e.g. for
 `output.resultsAsObject`<a name="optionsOutputResultsAsObject" />
 This creates a single root object (instead of the default array of objects).
 [View test example](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L245-278)
-
-`log`<a name="optionsLog" />
-Setting to true enables traversal information to be logged to console during growth process.
-
 
 ### .getOptions()<a name="getOptions" />
 
@@ -287,39 +280,6 @@ console.log(tree.getSeedData());
 ### .getStats()<a name="getStats" />
 
 Returns current growth statistics (e.g. number of sources process, number of rows, etc). _Output and format subject to change - use at your own risk._
-
-### .toString()<a name="toString" />
-
-Typecasting a treeize instance to String or manually calling `.toString()` on it will output it visually using the `util` library from node.js.
-
-```js
-var tree = new Treeize();
-
-tree.grow(data);
-
-// use automatic typecasting to trigger
-console.log(tree + '');
-
-// or call manually
-console.log(tree.toString());
-```
-
-### .log(arg1, arg2, ...)<a name="log" />
-
-Equivalent to `console.log(arg1, arg2, ...)` when the `log` option is set to `true`.  Useful for debugging messages or visual output that you can toggle from a single source.
-
-```js
-var tree = new Treeize();
-
-tree.log('my message');
-// 'my message' will NOT be written to the console
-
-tree
-  .setOptions({ log: true })
-  .log('my message')
-;
-// 'my message' WILL be written to the console
-```
 
 ---
 
@@ -682,3 +642,4 @@ actors.grow(moviesData);
 - **2.0.1** - performance tuning... ~400% performance boost over 2.0.0
 - **2.0.2** - added `.getSeedData()` to retrieve original, flat data
 - **2.0.3** - internal variable renaming to avoid deprecation error
+- **2.1.0** - major (> 3x) performance improvement - required dropping support for .toString() and internal logging, removed lodash as a dependency
