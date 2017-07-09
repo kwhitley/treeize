@@ -7,6 +7,8 @@ var welldata2 = require('./data/welldata2');
 var arraywelldata = require('./data/arraywelldata');
 var arraywelldataNoHeaders = require('./data/arraywelldata-no-headers');
 var classdata = require('./data/classdata');
+var nestedObjectsData = require('./data/nested-objects');
+var doubleNestedObjectsData = require('./data/double-nested-objects');
 
 describe('#getSeedData()', function() {
   it('should return original flat data', function() {
@@ -611,6 +613,76 @@ describe('#grow()', function() {
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
     ]);
+  });
+
+  it('should handle data with nested objects', function() {
+    var fields = new Treeize();
+    fields
+    .setOptions({ log: true })
+      .grow(nestedObjectsData)
+    ;
+
+    fields.getData().should.eql([{
+      primaryKey: 1,
+      subObject: {
+        key: 'field'
+      },
+      subresources: [{
+        id: 1,
+        field: 'Subresource 1'
+      }, {
+        id: 2,
+        field: 'Subresource 2'
+      }]
+    }, {
+      primaryKey: 2,
+      subObject: {
+        key: 'field'
+      },
+      subresources: [{
+        id: 3,
+        field: 'Subresource 3'
+      }, {
+        id: 4,
+        field: 'Subresource 4'
+      }]
+    }]);
+  });
+
+  it('should handle data with multiple nested objects', function() {
+    var fields = new Treeize();
+    fields
+    .setOptions({ log: true })
+      .grow(doubleNestedObjectsData)
+    ;
+
+    fields.getData().should.eql([{
+      primaryKey: 1,
+      subObject: {
+        key: 'field',
+        obj: { objKey: 'field' }
+      },
+      subresources: [{
+        id: 1,
+        field: 'Subresource 1'
+      }, {
+        id: 2,
+        field: 'Subresource 2'
+      }]
+    }, {
+      primaryKey: 2,
+      subObject: {
+        key: 'field',
+        obj: { objKey: 'field' }
+      },
+      subresources: [{
+        id: 3,
+        field: 'Subresource 3'
+      }, {
+        id: 4,
+        field: 'Subresource 4'
+      }]
+    }]);
   });
 
   it('should be able to merge multiple data sources/types together', function() {
