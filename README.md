@@ -643,3 +643,4 @@ actors.grow(moviesData);
 - **2.0.2** - added `.getSeedData()` to retrieve original, flat data
 - **2.0.3** - internal variable renaming to avoid deprecation error
 - **2.1.0** - major (> 3x) performance improvement - required dropping support for .toString() and internal logging, removed lodash as a dependency
+- **2.1.1** - rollback to lodash dependency to solve edge case in mapping

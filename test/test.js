@@ -1,25 +1,25 @@
-var Treeize = require('../lib/treeize');
-var treeize = new Treeize();
-var should  = require('should');
+var Treeize = require('../lib/treeize')
+var treeize = new Treeize()
+var should  = require('should')
 
-var welldata1 = require('./data/welldata1');
-var welldata2 = require('./data/welldata2');
-var arraywelldata = require('./data/arraywelldata');
-var arraywelldataNoHeaders = require('./data/arraywelldata-no-headers');
-var classdata = require('./data/classdata');
+var welldata1 = require('./data/welldata1')
+var welldata2 = require('./data/welldata2')
+var arraywelldata = require('./data/arraywelldata')
+var arraywelldataNoHeaders = require('./data/arraywelldata-no-headers')
+var classdata = require('./data/classdata')
 
 describe('#getSeedData()', function() {
   it('should return original flat data', function() {
-    var tree = new Treeize();
+    var tree = new Treeize()
     tree
       .grow(welldata1)
       .getSeedData()
       .should.eql(welldata1)
-    ;
-  });
+
+  })
 
   it('should return original flat data from multiple data sources', function() {
-    var tree = new Treeize();
+    var tree = new Treeize()
 
     tree
       .grow([{ 'foo': 'bar', 'logs:a': 1 }])
@@ -29,49 +29,49 @@ describe('#getSeedData()', function() {
         { 'foo': 'bar', 'logs:a': 1 },
         { 'foo': 'bar', 'logs:b': 2 }
       ])
-    ;
-  });
-});
+
+  })
+})
 
 describe('#getStats()', function() {
-  var tree = new Treeize();
+  var tree = new Treeize()
   var stats = tree.grow([
     { 'foo': 'bar', 'logs:a': 1 },
     { 'foo': 'bar', 'logs:a': 2 },
     { 'foo': 'baz', 'logs:a': 3 },
-  ]).getStats();
+  ]).getStats()
 
   describe('.rows', function() {
     it('should return number of rows processed', function() {
-      stats.rows.should.equal(3);
-    });
-  });
+      stats.rows.should.equal(3)
+    })
+  })
 
   describe('.sources', function() {
     it('should return number of sources/growth passes', function() {
-      stats.sources.should.equal(1);
-    });
-  });
-});
+      stats.sources.should.equal(1)
+    })
+  })
+})
 
 
 describe('#getOptions()', function() {
   it('should return options', function() {
-    treeize.getOptions().log.should.be.false;
-    treeize.getOptions().input.delimiter.should.equal(':');
-  });
-});
+    treeize.getOptions().log.should.be.false
+    treeize.getOptions().input.delimiter.should.equal(':')
+  })
+})
 
 
 describe('#setOptions()', function() {
   it('should be chainable', function() {
-    treeize.setOptions({ input: { uniformRows: false }}).should.be.type('object');
-    treeize.setOptions({ input: { uniformRows: true }}).should.have.property('grow');
-  });
+    treeize.setOptions({ input: { uniformRows: false }}).should.be.type('object')
+    treeize.setOptions({ input: { uniformRows: true }}).should.have.property('grow')
+  })
 
   describe('input.delimiter', function() {
     it('should allow custom delimiters', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.setOptions({ input: { delimiter: '|' }}).grow([
         { 'foo': 'bar', 'logs|a': 1 },
@@ -80,11 +80,11 @@ describe('#setOptions()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
         { foo: 'baz', logs: [{ a: 3 }]}
-      ]);
-    });
+      ])
+    })
 
     it('should be able to be set from grow() options', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'logs|a': 1 },
@@ -93,13 +93,13 @@ describe('#setOptions()', function() {
       ], { input: { delimiter: '|' }}).getData().should.eql([
         { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
         { foo: 'baz', logs: [{ a: 3 }]}
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('input.detectCollections', function() {
     it('should force plural nodes into collections when enabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'logs:a': 1 },
@@ -108,11 +108,11 @@ describe('#setOptions()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: [{ a: 1 }, { a: 2 }] },
         { foo: 'baz', logs: [{ a: 3 }]}
-      ]);
-    });
+      ])
+    })
 
     it('should ignore plural nodes when disabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.setOptions({ input: { detectCollections: false } }).grow([
         { 'foo': 'bar', 'logs:a': 1 },
@@ -121,16 +121,16 @@ describe('#setOptions()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: { a: 2 } },
         { foo: 'baz', logs: { a: 3 } },
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('input.uniformRows', function() {
     it('should create unique row signature for each row when disabled (default)', function() {
-      var fields = new Treeize();
+      var fields = new Treeize()
       fields
         .grow(welldata1)
-      ;
+
 
       fields.getData().should.eql([
         { code: 'RA',
@@ -150,14 +150,14 @@ describe('#setOptions()', function() {
                log: [ { oilrate: 2050, date: '12/12/2014' } ],
                reservoirs: [ { code: 'MA' } ] } ],
           reservoirs: [ { code: 'MA' } ] }
-      ]);
-    });
+      ])
+    })
 
     it('should use signature from first row when enabled', function() {
-      var fields = new Treeize();
+      var fields = new Treeize()
       fields
         .grow(welldata1, { input: { uniformRows: true }})
-      ;
+
 
       fields.getData().should.eql([
         { code: 'RA',
@@ -176,9 +176,9 @@ describe('#setOptions()', function() {
                log: [ { oilrate: 2050, date: '12/12/2014' } ],
                reservoirs: [ { code: 'MA' } ] } ],
           reservoirs: [ { code: 'MA' } ] }
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('output.objectOverwrite', function() {
     var testDataOverwrite = [
@@ -198,72 +198,72 @@ describe('#setOptions()', function() {
         'fk:b': 'Y',
         'pet':  'Mittens'
       },
-    ];
+    ]
 
     it('should overwrite attribute/placeholder objects with real objects when enabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree = tree
         .grow(testDataOverwrite)
         .getData()
-      ;
+
 
       tree.should.eql([
         { name: 'dog', fk: { a: 'X', b: 'Y' }, pet: 'Mittens' },
         { name: 'cat', fk: { a: 'A', b: 'B' } }
-      ]);
-    });
+      ])
+    })
 
     it('should not overwrite attribute/placeholder objects with real objects when disabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree = tree
         .setOptions({ output: { objectOverwrite: false }})
         .grow(testDataOverwrite)
         .getData()
-      ;
+
 
       tree.should.eql([
         { name: 'dog', fk: 1, pet: 'Mittens' },
         { name: 'cat', fk: { a: 'A', b: 'B' } }
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('output.prune', function() {
     var pruneData = [
       { 'name': null, 'age': 1 },
       { 'name': 'Kevin', 'age': 12 },
       { foo: null, bar: null }
-    ];
+    ]
 
     it('should prune empty nodes when enabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree
         .setOptions({ input: { uniformRows: false } })
         .grow(pruneData)
-      ;
 
-      tree.getData().should.have.a.length(2);
+
+      tree.getData().should.have.a.length(2)
       tree.getData().should.eql([
         { age: 1 },
         { name: 'Kevin', age: 12 }
-      ]);
-    });
+      ])
+    })
 
     it('should leave empty nodes when disabled', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree
         .setOptions({ input: { uniformRows: false }, output: { prune: false } })
         .grow(pruneData)
-      ;
 
-      tree.getData().should.have.a.length(3);
+
+      tree.getData().should.have.a.length(3)
       tree.getData().should.eql([
         { name: null, age: 1 },
         { name: 'Kevin', age: 12 },
         { foo: null, bar: null }
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('output.resultsAsObject', function() {
     it('should create single root object instead of array results', function() {
@@ -283,14 +283,14 @@ describe('#setOptions()', function() {
           'comments:comment': 'I really miss you',
           'comments:date': '2014/09/11'
         }
-      ];
+      ]
 
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree = tree
         .setOptions({ input: { uniformRows: false }, output: { resultsAsObject: true }})
         .grow(testDataRootObject)
         .getData()
-      ;
+
 
       tree.should.eql({
         name: 'kevin',
@@ -300,42 +300,42 @@ describe('#setOptions()', function() {
           { comment: 'I miss you', date: '2014/09/10' },
           { comment: 'I really miss you', date: '2014/09/11' }
         ]
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})
 
 
 describe('#resetOptions()', function() {
   it('should be chainable', function() {
-    treeize.resetOptions().should.be.type('object');
-    treeize.resetOptions().should.have.property('grow');
-  });
+    treeize.resetOptions().should.be.type('object')
+    treeize.resetOptions().should.have.property('grow')
+  })
 
   it('should reset base options', function() {
-    var baseOptions = treeize.getOptions();
-    treeize.setOptions({ log: true });
-    treeize.getOptions().should.not.eql(baseOptions);
-    treeize.getOptions().log.should.be.true;
-    treeize.resetOptions();
-    treeize.getOptions().should.eql(baseOptions);
-    treeize.getOptions().log.should.be.false;
-  });
-});
+    var baseOptions = treeize.getOptions()
+    treeize.setOptions({ log: true })
+    treeize.getOptions().should.not.eql(baseOptions)
+    treeize.getOptions().log.should.be.true
+    treeize.resetOptions()
+    treeize.getOptions().should.eql(baseOptions)
+    treeize.getOptions().log.should.be.false
+  })
+})
 
 
 describe('#setSignature()', function() {
   it('should be chainable', function() {
-    treeize.setSignature([]).should.be.type('object');
-    treeize.setSignature([]).should.have.property('grow');
-  });
+    treeize.setSignature([]).should.be.type('object')
+    treeize.setSignature([]).should.have.property('grow')
+  })
 
   it('should force signature from a defined row', function() {
-    var fields = new Treeize();
+    var fields = new Treeize()
     fields
       .setSignature(welldata1[3])
       .grow(welldata1)
-    ;
+
 
     fields.getData().should.eql([
       { code: 'RA',
@@ -351,32 +351,32 @@ describe('#setSignature()', function() {
              log: [ { date: '12/12/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
-    ]);
-  });
+    ])
+  })
 
   it('should work with array data', function() {
-    var fields = new Treeize();
+    var fields = new Treeize()
     fields
       .setSignature(['id','name:first','age'])
       .grow([
         [1, 'kevin', 34],
         [2, 'jimbo', 33],
       ])
-    ;
+
 
     fields.getData().should.eql([
       { id: 1, name: { first: 'kevin' }, age: 34 },
       { id: 2, name: { first: 'jimbo' }, age: 33 }
-    ]);
-  });
+    ])
+  })
 
   it('should persist between data sets when called manually', function() {
-    var fields = new Treeize();
+    var fields = new Treeize()
     fields
       .setSignature(welldata1[3])
       .grow(welldata1)
       .grow(welldata2)
-    ;
+
 
     fields.getData().should.eql([
       { code: 'RA',
@@ -396,8 +396,8 @@ describe('#setSignature()', function() {
                 { wc: 0.2, date: '12/13/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
-    ]);
-  });
+    ])
+  })
 
   describe('modifiers', function() {
     it('-/+/* modifiers should only be stripped from head/tail of paths', function() {
@@ -416,33 +416,33 @@ describe('#setSignature()', function() {
           'a+b': 'why not?',
           'log-ref+:date': '2014/1/2'
         },
-      ];
+      ]
 
-      var tree = new Treeize();
+      var tree = new Treeize()
       tree = tree
         .grow(testPlusMinus)
         .getData()
-      ;
+
 
       tree.should.eql([ { name: 'kevin',
         'a+b': 'why not?',
         'log-ref': [ { date: '2014/1/1' }, { date: '2014/1/2' } ],
         'owned-pets': [ { name: 'Fido', age: 12 } ] } ]
-      );
-    });
+      )
+    })
 
     it('* modifier should define specific signature attributes', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo*': 'bar', 'age': 1 },
         { 'foo*': 'bar', 'age': 2 },
         { 'foo*': 'baz', 'age': 3 },
-      ]).getData().should.have.length(2);
-    });
+      ]).getData().should.have.length(2)
+    })
 
     it('+ modifier should force collection', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'log+:a': 1 },
@@ -451,11 +451,11 @@ describe('#setSignature()', function() {
       ]).getData().should.eql([
         { foo: 'bar', log: [{ a: 1 }, { a: 2 }] },
         { foo: 'baz', log: [{ a: 3 }]}
-      ]);
-    });
+      ])
+    })
 
     it('+ modifier should work on deep nodes', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'log+:a:b': 1 },
@@ -464,11 +464,11 @@ describe('#setSignature()', function() {
       ]).getData().should.eql([
         { foo: 'bar', log: [{ a: { b: 1 } }, { a: { b: 2 } }] },
         { foo: 'baz', log: [{ a: { b: 3 } }]}
-      ]);
-    });
+      ])
+    })
 
     it('+ modifier should work on deep edge (classdata) case', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow(classdata).getData().should.eql([
         { Name: 'Duke University',
@@ -497,11 +497,11 @@ describe('#setSignature()', function() {
                     'Start Date': '10/21/13',
                     Duration: '6 weeks' } ] } ],
           Providers: [ { Name: 'Coursera' } ] }
-      ]);
-    });
+      ])
+    })
 
     it('- modifier should force object (instead of collection) when plural name', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'logs-:a': 1 },
@@ -510,11 +510,11 @@ describe('#setSignature()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: { a: 2 } },
         { foo: 'baz', logs: { a: 3 } }
-      ]);
-    });
+      ])
+    })
 
     it('- modifier should work on deep nodes', function() {
-      var tree = new Treeize();
+      var tree = new Treeize()
 
       tree.grow([
         { 'foo': 'bar', 'logs-:a:b': 1 },
@@ -523,26 +523,26 @@ describe('#setSignature()', function() {
       ]).getData().should.eql([
         { foo: 'bar', logs: { a: { b: 2 } } },
         { foo: 'baz', logs: { a: { b: 3 } } }
-      ]);
-    });
-  });
-});
+      ])
+    })
+  })
+})
 
 
 describe('#grow()', function() {
   it('should be chainable', function() {
-    treeize.grow().should.be.type('object');
-    treeize.grow().should.have.property('grow');
-  });
+    treeize.grow().should.be.type('object')
+    treeize.grow().should.have.property('grow')
+  })
 
   it('passing options should not change global options (including input options)', function() {
     var pruneData = [
       { 'name': null, 'age': 1 },
       { 'name': 'Kevin', 'age': 12 },
       { foo: null, bar: null }
-    ];
+    ]
 
-    var tree = new Treeize();
+    var tree = new Treeize()
     tree
       .grow(pruneData, { input: { uniformRows: false }, output: { prune: false } })
       .getData()
@@ -551,42 +551,42 @@ describe('#grow()', function() {
         { name: 'Kevin', age: 12 },
         { foo: null, bar: null }
       ])
-    ;
-  });
+
+  })
 
   it('passing options should not change global options', function() {
-    var tree = new Treeize();
-    tree.setOptions({ input: { delimiter: '&' } });
-    tree.getOptions().input.delimiter.should.equal('&');
+    var tree = new Treeize()
+    tree.setOptions({ input: { delimiter: '&' } })
+    tree.getOptions().input.delimiter.should.equal('&')
 
-    tree.grow([], { input: { delimiter: '>' } });
-    tree.getOptions().input.delimiter.should.equal('&');
-  });
+    tree.grow([], { input: { delimiter: '>' } })
+    tree.getOptions().input.delimiter.should.equal('&')
+  })
 
   it('passing options for signature reading should work', function() {
-    var tree = new Treeize();
-    tree.setOptions({ input: { delimiter: '&' } });
-    tree.getOptions().input.delimiter.should.equal('&');
+    var tree = new Treeize()
+    tree.setOptions({ input: { delimiter: '&' } })
+    tree.getOptions().input.delimiter.should.equal('&')
 
-    tree.grow([], { input: { delimiter: '>' } });
-    tree.getOptions().input.delimiter.should.equal('&');
-  });
+    tree.grow([], { input: { delimiter: '>' } })
+    tree.getOptions().input.delimiter.should.equal('&')
+  })
 
   it('should create new entry for each unique node signature', function() {
-    var tree = new Treeize();
+    var tree = new Treeize()
 
     tree.grow([
       { 'foo': 'bar', 'age': 1 },
       { 'foo': 'bar', 'age': 2 },
       { 'foo': 'baz', 'age': 3 },
-    ]).getData().should.have.length(3);
-  });
+    ]).getData().should.have.length(3)
+  })
 
   it('should handle flat array data', function() {
-    var fields = new Treeize();
+    var fields = new Treeize()
     fields
       .grow(arraywelldata)
-    ;
+
 
     fields.getData().should.eql([
       { code: 'RA',
@@ -610,17 +610,17 @@ describe('#grow()', function() {
              log: [ { effluent: 850, date: '12/11/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
-    ]);
-  });
+    ])
+  })
 
   it('should be able to merge multiple data sources/types together', function() {
-    var fields = new Treeize();
+    var fields = new Treeize()
     fields
       .setOptions({ input: { uniformRows: false } })
       .grow(welldata1)
       .grow(welldata2)
       .grow(arraywelldata)
-    ;
+
 
     fields.getData().should.eql([
       { code: 'RA',
@@ -647,11 +647,11 @@ describe('#grow()', function() {
              log: [ { effluent: 850, date: '12/11/2014' } ],
              reservoirs: [ { code: 'MA' } ] } ],
         reservoirs: [ { code: 'MA' } ] }
-    ]);
-  });
+    ])
+  })
 
   it('should handle deep object paths without existing definition', function() {
-    var tree = new Treeize();
+    var tree = new Treeize()
 
     tree.grow([
       {
@@ -674,11 +674,11 @@ describe('#grow()', function() {
         user:
          { age: 34,
            a: { b: { c: { d: { e: 'kevin', efg: 'kelly' }, def: { e: 'jimbo' } } } } } }
-    ]);
-  });
+    ])
+  })
 
   it('should handle signature-less root node insertion', function() {
-    var tree = new Treeize();
+    var tree = new Treeize()
 
     tree.grow([
       { 'foo:name': 'bar', 'foo:age': 1 },
@@ -686,6 +686,44 @@ describe('#grow()', function() {
     ]).getData().should.eql([
       { foo: { name: 'bar', age: 1 } },
       { foo: { name: 'baz', age: 3 } }
-    ]);
-  });
-});
+    ])
+  })
+
+  it('should handle rows with nested objects', function() {
+    var tree = new Treeize()
+
+    tree.grow([{
+      primaryKey: 1,
+      subObject: {
+        key: 'field'
+      },
+        'subresources:id': 1,
+        'subresources:field': 'Subresource 1',
+      }, {
+        primaryKey: 1,
+        subObject: {
+          key: 'field'
+        },
+        'subresources:id': 2,
+        'subresources:field': 'Subresource 2',
+      }])
+    .getData().should.eql([
+      {
+        "primaryKey": 1,
+        "subObject": {
+          "key": "field"
+        },
+        "subresources": [
+          {
+            "id": 1,
+            "field": "Subresource 1"
+          },
+          {
+            "id": 2,
+            "field": "Subresource 2"
+          }
+        ]
+      }
+    ])
+  })
+})
