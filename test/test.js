@@ -689,6 +689,16 @@ describe('#grow()', function() {
     ])
   })
 
+  it('should handle attributes named "length"', function() {
+    var tree = new Treeize()
+
+    tree.grow([
+      { length: 86 },
+    ]).getData().should.eql([
+      { length: 86 }
+    ])
+  })
+
   it('should handle rows with nested objects', function() {
     var tree = new Treeize()
 
