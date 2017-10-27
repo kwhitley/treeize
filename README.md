@@ -148,6 +148,7 @@ Sets options globally for the Treeize instance.  This is an alias for `.options(
   input: {
     delimiter:          ':',    // delimiter between path segments, defaults to ':'
     detectCollections:  true,   // when true, plural path segments become collections
+    everythingIsCollection: false, //when true, every nested object is a collection (useful if you cannot guarantee that collections are in english plural form, e.g. when it's in a different language)
     uniformRows:        false,  // set to true if each row has identical signatures
   },
   output: {
@@ -173,6 +174,9 @@ This sets the delimiter to be used between path segments (e.g. the ":" in "child
 `input.detectCollections`<a name="optionsInputDetectCollections" />
 Enables/disables the default behavior of turning plural path segments (e.g. "subjects" vs. "subject") into collections instead of object paths.  **Note:** In order to properly merge multiple rows into the same collection item, the collection must have a base-level attribute(s) acting as a signature.
 [View test example (enabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L79-86) | [or (disabled)](https://github.com/kwhitley/treeize/blob/feature/multi-format/test/test.js#L92-99)
+
+`input.everythingIsCollection`<a name="optionsInputEverythingIsCollection" />
+Default is false. When true, every nested object is a collection. That's useful if you cannot change the names of objects so you can not rely on the DetectCollections option.
 
 `input.uniformRows`<a name="optionsInputUniformRows" />
 By default row uniformity is disabled to allow the most flexible data merging.  This means each and every row of data that is processed (unless flat array-of-array data) will be analyzed and mapped individually into the final structure.  If your data rows have uniform attributes/columns, disable this for a performance increase.
